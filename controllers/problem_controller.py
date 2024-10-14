@@ -13,9 +13,9 @@ def update_problem(problem_id):
     start_time = request.json.get('start_time')
     deadline = request.json.get('deadline')
     problem_id = current_app.problem_repository.update_problem_details(problem_id,
-                                                             problem_name,
-                                                             start_time,
-                                                             deadline)
+                                                                       problem_name,
+                                                                       start_time,
+                                                                       deadline)
     return jsonify({'problem_id': problem_id})
 
 @problem_bp.route('/<string:problem_id>', methods=['GET'])

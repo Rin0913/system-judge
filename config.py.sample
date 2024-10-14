@@ -16,8 +16,11 @@ class Config:
     JWT_SECRET = r""
     
     # Flask
+    LOG_PATH = None # None -> stdout
+    LOGGING_LEVEL = "info"
     DEBUG = False
 
 class DevelopmentConfig(Config):
-
+    LOG_PATH = None # None -> stdout
+    LOGGING_LEVEL = "debug"
     DEBUG = True
