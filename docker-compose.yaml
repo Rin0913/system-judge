@@ -1,0 +1,20 @@
+version: '3.3'
+
+services:
+  mysqld:
+    image: mysql:latest
+    volumes:
+      - ./data/db:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: abc123
+      MYSQL_DATABASE: system_judge
+      MYSQL_USER: judge
+      MYSQL_PASSWORD: abc123
+    ports:
+      - "3306:3306"
+    networks:
+      judge:
+    
+networks:
+  judge:
