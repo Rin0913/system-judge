@@ -5,7 +5,13 @@ from .utils import managed_session  # First-party imports
 
 
 class ProblemRepository:
-    def __init__(self, sql_engine):
+
+    def __init__(self):
+        self.sql_engine = None
+        self.session_factory = None
+
+    def init_app(self, app, sql_engine):
+        app.problem_repository = self
         self.sql_engine = sql_engine
         self.session_factory = scoped_session(sessionmaker(bind=self.sql_engine))
 
