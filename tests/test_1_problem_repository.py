@@ -5,7 +5,6 @@ from sqlalchemy import create_engine
 
 from models import db
 from repositories import ProblemRepository
-from config import Config as config
 
 sql_engine = create_engine('sqlite:///:memory:')
 db.Base.metadata.create_all(sql_engine)

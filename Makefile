@@ -9,3 +9,6 @@ down:
 
 lint:
 	pylint ./ --recursive=true
+
+test:
+	pytest
