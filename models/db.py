@@ -45,3 +45,4 @@ class Problem(me.Document):
     subtasks = me.ListField(me.EmbeddedDocumentField(Subtask))
     playbooks = me.ListField(me.EmbeddedDocumentField(Playbook))
     dependencies = me.ListField(me.EmbeddedDocumentField(Dependency))
+    image_name = me.StringField(max_length=1024)

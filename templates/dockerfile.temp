@@ -1,0 +1,12 @@
+FROM python:3.11-alpine
+
+RUN pip3 install ansible
+
+RUN apk add --no-cache \
+    bash \
+    wireguard-tools \
+    openssh-client
+
+WORKDIR /app
+
+COPY ./scripts/ /app/

@@ -3,7 +3,7 @@ import sys
 from flask import Flask
 import mongoengine as me
 
-from services import AuthService
+from services import AuthService, DockerService
 from repositories import ProblemRepository
 from controllers import problem_bp, auth_bp
 
@@ -30,11 +30,12 @@ def initialize_app(config_name):
         judge_logger.addHandler(file_handler)
 
     app.logger.handlers = judge_logger.handlers
-    app.logger.warning("Test MEsage")
 
     # Services Initialization
     auth_service = AuthService()
     auth_service.init_app(app, app.config.get('JWT_SECRET'), judge_logger)
+    docker_service = DockerService()
+    docker_service.init_app(app, app.config, judge_logger)
 
     # Repositories Initialization
     mongo_connection = (

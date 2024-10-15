@@ -109,3 +109,8 @@ class ProblemRepository:
         problem.playbooks.append(playbook)
         problem.save()
         return True
+
+    def set_image_name(self, problem_id, image_name):
+        problem = self.__query(problem_id)
+        if problem:
+            problem.update(image_name=image_name)

@@ -45,6 +45,10 @@ def update_problem(problem_id):
                                                     playbook['playbook_name'],
                                                     playbook['script'])
         existing_playbook_name.add(playbook['playbook_name'])
+
+    problem_data = current_app.problem_repository.query(problem_id)
+    image_name = current_app.docker_service.build_image(problem_data)
+    current_app.problem_repository.set_image_name(problem_id, image_name)
     return jsonify({'successful': result})
 
 @problem_bp.route('/<string:problem_id>', methods=['GET'])
