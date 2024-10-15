@@ -1,14 +1,13 @@
 import logging
 import warnings
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine
 
-from models import db
+import mongomock
+import mongoengine as me
 from repositories import ProblemRepository
 
-sql_engine = create_engine('sqlite:///:memory:')
-db.Base.metadata.create_all(sql_engine)
-problem_repository = ProblemRepository(sql_engine, logging)
+me.connect('testdb', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient)
+problem_repository = ProblemRepository(logging)
 
 def test_create_problem():
 
@@ -26,8 +25,8 @@ def test_list_problems():
         problem_list.add(problem_id)
 
     for problem in problem_repository.list():
-        if problem['problem_id'] in problem_list:
-            problem_list.remove(problem['problem_id'])
+        if problem['_id'] in problem_list:
+            problem_list.remove(problem['_id'])
 
     assert len(problem_list) == 0
 
@@ -39,7 +38,8 @@ def test_list_problems():
 def test_delete_problem():
 
     problem_id = problem_repository.create()
-    assert problem_repository.delete(problem_id)
+    problem_repository.delete(problem_id)
+    assert problem_repository.query(problem_id) is None
     if problem_repository.query(problem_id):
         warnings.warn(f"Test problem was not deleted for id = {problem_id}.")
 

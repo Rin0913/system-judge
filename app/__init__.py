@@ -1,7 +1,7 @@
 import logging
 import sys
 from flask import Flask
-from sqlalchemy import create_engine
+import mongoengine as me
 
 from services import AuthService
 from repositories import ProblemRepository
@@ -36,17 +36,17 @@ def initialize_app(config_name):
     auth_service = AuthService()
     auth_service.init_app(app, app.config.get('JWT_SECRET'), judge_logger)
 
-    # Problem Repository Initialization
-    connection_string = (
-        f"mysql+pymysql://{app.config.get('MYSQL_USER')}:{app.config.get('MYSQL_PSWD')}"
-        f"@{app.config.get('MYSQL_HOST')}/{app.config.get('MYSQL_DB')}"
+    # Repositories Initialization
+    mongo_connection = (
+            f'mongodb://{app.config.get("DB_USER")}:'
+            f'{app.config.get("DB_PASSWORD")}@{app.config.get("DB_HOST")}'
     )
-    sql_engine = create_engine(connection_string)
-    problem_repository = ProblemRepository()
-    problem_repository.init_app(app, sql_engine, judge_logger)
+    me.connect(app.config.get("DB_NAME"), mongo_connection)
+    # problem_repository = ProblemRepository()
+    # problem_repository.init_app(app, sql_engine, judge_logger)
 
     # Registering Blueprints
-    app.register_blueprint(problem_bp, url_prefix='/problems')
+    # app.register_blueprint(problem_bp, url_prefix='/problems')
     app.register_blueprint(auth_bp, url_prefix='/')
 
     return app
