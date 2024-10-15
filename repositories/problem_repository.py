@@ -17,7 +17,7 @@ class ProblemRepository:
         self.session_factory = scoped_session(sessionmaker(bind=self.sql_engine))
         self.logger = logger
 
-    def create_problem(self, problem_name="newProblem"):
+    def create(self, problem_name="newProblem"):
         with managed_session(self.session_factory, self.logger) as session:
             problem = db.Problem(problem_name=problem_name)
             session.add(problem)
@@ -25,7 +25,7 @@ class ProblemRepository:
             return problem.id
         return 0
 
-    def list_problems(self):
+    def list(self):
         with managed_session(self.session_factory, self.logger) as session:
             problems = session.query(db.Problem).filter_by(is_valid=True).all()
             problem_data = []
@@ -40,7 +40,7 @@ class ProblemRepository:
                 })
             return problem_data
 
-    def query_problem(self, problem_id):
+    def query(self, problem_id):
         with managed_session(self.session_factory, self.logger) as session:
             problem = session.query(db.Problem).filter_by(id=problem_id, is_valid=True).first()
             if problem:
@@ -55,7 +55,7 @@ class ProblemRepository:
                 return problem_data
         return None
 
-    def delete_problem(self, problem_id):
+    def delete(self, problem_id):
         with managed_session(self.session_factory, self.logger) as session:
             problem = session.query(db.Problem).filter_by(id=problem_id, is_valid=True).first()
             if problem:
@@ -65,7 +65,7 @@ class ProblemRepository:
             return 0
         return 0
 
-    def update_problem(self, problem_id, problem_name, start_time, deadline):
+    def update(self, problem_id, problem_name, start_time, deadline):
         current_time = datetime.now()
         allow_submissions = False
 
