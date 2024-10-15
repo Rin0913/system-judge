@@ -5,3 +5,5 @@ SQLAlchemy==2.0.35
 pymysql==1.1.1
 cryptography==43.0.1
 PyJWT==2.9.0
+pyroute2==0.7.12
+wgconfig==1.0.4
