@@ -15,15 +15,22 @@ class Subtask(me.EmbeddedDocument):
 
     id = me.SequenceField(primary_key=True)
     task_name = me.StringField(max_length=255, required=True)
-    points = me.IntField(required=True)
-    scripts = me.StringField()
+    point = me.IntField(required=True)
+    script = me.StringField()
 
 class Playbook(me.EmbeddedDocument):
     objects: QuerySetManager
 
     id = me.SequenceField(primary_key=True)
     playbook_name = me.StringField(max_length=255, required=True)
-    scripts = me.StringField()
+    script = me.StringField()
+
+class Dependency(me.EmbeddedDocument):
+    objects: QuerySetManager
+
+    id = me.SequenceField(primary_key=True)
+    prerequisite = me.StringField(max_length=255, required=True)
+    task = me.StringField(max_length=255, required=True)
 
 class Problem(me.Document):
     objects: QuerySetManager
@@ -33,7 +40,8 @@ class Problem(me.Document):
     allow_submission = me.BooleanField(default=False)
     problem_name = me.StringField(max_length=255, default="NewProblem")
     create_time = me.DateTimeField(default=datetime.utcnow)
-    start_time = me.DateTimeField(default=None)
-    deadline = me.DateTimeField(default=None)
+    start_time = me.DateTimeField(default=datetime.utcnow)
+    deadline = me.DateTimeField(default=datetime.utcnow)
     subtasks = me.ListField(me.EmbeddedDocumentField(Subtask))
     playbooks = me.ListField(me.EmbeddedDocumentField(Playbook))
+    dependencies = me.ListField(me.EmbeddedDocumentField(Dependency))

@@ -55,12 +55,12 @@ def test_update_query_problem():
                                       deadline)
     problem_data = problem_repository.query(problem_id)
 
-    def ftime(time):
-        return time.strftime('%Y-%m-%d')
+    def f_time(time):
+        return time.strftime('%Y-%m-%d %H:%M:%S')
 
     assert problem_data['problem_name'] == problem_name
-    assert ftime(problem_data['start_time']) == ftime(start_time)
-    assert ftime(problem_data['deadline']) == ftime(deadline)
+    assert problem_data['start_time'] == f_time(start_time)
+    assert problem_data['deadline'] == f_time(deadline)
     problem_repository.delete(problem_id)
     if problem_repository.query(problem_id):
         warnings.warn(f"Test problem was not deleted for id = {problem_id}.")

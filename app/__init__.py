@@ -41,12 +41,12 @@ def initialize_app(config_name):
             f'mongodb://{app.config.get("DB_USER")}:'
             f'{app.config.get("DB_PASSWORD")}@{app.config.get("DB_HOST")}'
     )
-    me.connect(app.config.get("DB_NAME"), mongo_connection)
-    # problem_repository = ProblemRepository()
-    # problem_repository.init_app(app, sql_engine, judge_logger)
+    me.connect(db=app.config.get("DB_NAME"), host=mongo_connection)
+    problem_repository = ProblemRepository()
+    problem_repository.init_app(app, judge_logger)
 
     # Registering Blueprints
-    # app.register_blueprint(problem_bp, url_prefix='/problems')
+    app.register_blueprint(problem_bp, url_prefix='/problems')
     app.register_blueprint(auth_bp, url_prefix='/')
 
     return app
