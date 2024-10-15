@@ -1,20 +1,13 @@
-version: '3.3'
+version: '3.8'
 
 services:
-  mysqld:
-    image: mysql:latest
-    volumes:
-      - ./data/db:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
     environment:
-      MYSQL_ROOT_PASSWORD: abc123
-      MYSQL_DATABASE: system_judge
-      MYSQL_USER: judge
-      MYSQL_PASSWORD: abc123
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: abc123
     ports:
-      - "3306:3306"
-    networks:
-      judge:
-    
-networks:
-  judge:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db

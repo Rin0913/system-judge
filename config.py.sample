@@ -1,11 +1,11 @@
 # pylint: disable=too-few-public-methods
 
 class Config:
-    # MySQL Parameters
-    MYSQL_HOST = r"localhost"
-    MYSQL_USER = r"judge"
-    MYSQL_PSWD = r"abc123"
-    MYSQL_DB   = r"system_judge"
+    # MongoDB Parameters
+    DB_HOST = "localhost:27017"
+    DB_USER = "root"
+    DB_PASSWORD = "abc123"
+    DB_NAME = "judge"
 
     # Google OAuth Parameters
     GOOGLE_CLIENT_ID = r""
@@ -14,7 +14,7 @@ class Config:
 
     # JWT Secret
     JWT_SECRET = r""
-    
+
     # Flask
     LOG_PATH = None # None -> stdout
     LOGGING_LEVEL = "info"
