@@ -1,10 +1,10 @@
-from flask import jsonify, request, g, Blueprint, current_app
+from flask import jsonify, request, Blueprint, current_app
 
 problem_bp = Blueprint('problem', __name__)
 
 @problem_bp.route('/create', methods=['POST'])
 def create_problem():
-    problem_id = g.problem_repository.create_problem()
+    problem_id = current_app.problem_repository.create_problem()
     return jsonify({'problem_id': problem_id})
 
 @problem_bp.route('/update/<string:problem_id>', methods=['PUT'])
