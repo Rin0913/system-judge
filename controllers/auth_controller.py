@@ -14,9 +14,7 @@ def get_admin_token():
     return current_app.auth_service.issue_token({'uid': 'user', 'role': 'admin'})
 
 @auth_bp.route('/whoami', methods=['GET'])
-@access_control.require_development_environment
 @access_control.require_login
-@access_control.require_development_environment
 def whoami():
     return g.user
 

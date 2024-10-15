@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods not-callable
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import declarative_base, relationship
@@ -21,7 +21,7 @@ class Problem(Base):
     is_valid = Column(Boolean, default=True)
     allow_submission = Column(Boolean, default=False)
     problem_name = Column(String(255))
-    created_time = Column(TIMESTAMP, default=func.now)
+    created_time = Column(TIMESTAMP, default=func.now())
     start_time = Column(DateTime)
     deadline = Column(DateTime)
     submissions = relationship('Submission', back_populates='problem')

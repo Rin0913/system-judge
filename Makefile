@@ -3,7 +3,6 @@
 
 up:
 	sudo docker compose up -d
-	python3 main.py
 
 down:
 	sudo docker compose down
