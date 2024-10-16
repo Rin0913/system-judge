@@ -3,8 +3,8 @@ import sys
 from flask import Flask
 import mongoengine as me
 
-from services import AuthService, DockerService, LdapService
-from repositories import ProblemRepository
+from services import AuthService, DockerService, LdapService, WireguardService
+from repositories import ProblemRepository, UserRepository
 from controllers import problem_bp, auth_bp
 
 LOGGING_LEVEL = {'debug': logging.DEBUG, 'info': logging.INFO}
@@ -31,14 +31,6 @@ def initialize_app(config_name):
 
     app.logger.handlers = judge_logger.handlers
 
-    # Services Initialization
-    auth_service = AuthService()
-    auth_service.init_app(app, app.config.get('JWT_SECRET'), judge_logger)
-    docker_service = DockerService()
-    docker_service.init_app(app, app.config, judge_logger)
-    ldap_service = LdapService()
-    ldap_service.init_app(app, app.config)
-
     # Repositories Initialization
     mongo_connection = (
             f'mongodb://{app.config.get("DB_USER")}:'
@@ -47,6 +39,18 @@ def initialize_app(config_name):
     me.connect(db=app.config.get("DB_NAME"), host=mongo_connection)
     problem_repository = ProblemRepository()
     problem_repository.init_app(app, judge_logger)
+    user_repository = UserRepository()
+    user_repository.init_app(app, judge_logger)
+
+    # Services Initialization
+    auth_service = AuthService()
+    auth_service.init_app(app, app.config.get('JWT_SECRET'), judge_logger)
+    docker_service = DockerService()
+    docker_service.init_app(app, app.config, judge_logger)
+    ldap_service = LdapService()
+    ldap_service.init_app(app, app.config)
+    wireguard_service = WireguardService()
+    wireguard_service.init_app(app, app.config.get('WG_LISTEN_IP'), judge_logger)
 
     # Registering Blueprints
     app.register_blueprint(problem_bp, url_prefix='/problems')

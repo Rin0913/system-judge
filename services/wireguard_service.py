@@ -1,5 +1,4 @@
 import subprocess
-import os
 from pyroute2 import IPRoute
 from wgconfig import WGConfig
 
@@ -13,18 +12,18 @@ DNS = 8.8.8.8
 PublicKey = {server_public_keypair}
 Endpoint = {server_ip}:{server_listen_port}
 AllowedIPs = 10.101.101.0/24
-"""
+""".strip()
 
-class WireguardManager:
+class WireguardService:
 
-    def __init__(self, server_ip, data_dir):
+    def __init__(self, server_ip=None, logger=None):
         self.server_ip = server_ip
-        self.data_dir = data_dir
+        self.logger = logger
 
-    def init_app(self, app, server_ip, data_dir):
-        self.server_ip = server_ip
-        self.data_dir = data_dir
+    def init_app(self, app, server_ip, logger):
         app.wireguard_manager = self
+        self.server_ip = server_ip
+        self.logger = logger
 
     def __run_subprocess(self, command):
         return (
@@ -72,26 +71,22 @@ class WireguardManager:
         wg.add_attr(judge_keypair[1], "AllowedIPs", "10.101.101.2/32")
         wg.write_file()
 
-        # Judge conf
+        # Launch interface and vrf
+        self.logger.info(self.__run_subprocess(f"wg-quick up {wg_interface_name}"))
+        ipr = IPRoute()
+        self.__configure_vrf(ipr, profile_id, wg_interface_name)
+        ipr.close()
+
+        # Store user conf and judge conf into DB
+        user_conf  = PEER_CONFIG.format(peer_private_keypair=user_keypair[0],
+                                        peer_interface_ip="10.101.101.1",
+                                        server_public_keypair=server_keypair[1],
+                                        server_ip=self.server_ip,
+                                        server_listen_port=server_listen_port)
+
         judge_conf = PEER_CONFIG.format(peer_private_keypair=judge_keypair[0],
                                         peer_interface_ip="10.101.101.2",
                                         server_public_keypair=server_keypair[1],
                                         server_ip=self.server_ip,
                                         server_listen_port=server_listen_port)
-        judge_conf_path = os.path.join(self.data_dir, f"{wg_interface_name}_judge.conf")
-        with open(judge_conf_path, "w", encoding="utf-8") as f:
-            f.write(judge_conf)
-
-        self.__run_subprocess(f"wg-quick up {wg_interface_name}")
-
-        # VRF configuration
-        ipr = IPRoute()
-        self.__configure_vrf(ipr, profile_id, wg_interface_name)
-        ipr.close()
-
-        # User conf
-        return PEER_CONFIG.format(peer_private_keypair=user_keypair[0],
-                                  peer_interface_ip="10.101.101.1",
-                                  server_public_keypair=server_keypair[1],
-                                  server_ip=self.server_ip,
-                                  server_listen_port=server_listen_port)
+        return (user_conf, judge_conf)

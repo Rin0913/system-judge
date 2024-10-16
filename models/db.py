@@ -2,13 +2,19 @@ from datetime import datetime
 import mongoengine as me
 from mongoengine.queryset.manager import QuerySetManager
 
+class WGConf(me.EmbeddedDocument):
+    objects: QuerySetManager
+
+    id = me.IntField(default=20000)
+    user_conf = me.StringField(required=True)
+    judge_conf = me.StringField(required=True)
+
 class User(me.Document):
     objects: QuerySetManager
 
     id = me.SequenceField(primary_key=True)
     name = me.StringField(max_length=255, required=True)
-    email = me.EmailField(max_length=255, required=True)
-    role = me.StringField(max_length=255, default='user')
+    wireguard_conf = me.EmbeddedDocumentField(WGConf)
 
 class Subtask(me.EmbeddedDocument):
     objects: QuerySetManager
