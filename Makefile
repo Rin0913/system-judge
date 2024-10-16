@@ -11,4 +11,4 @@ lint:
 	pylint ./ --recursive=true
 
 test:
-	pytest
+	pytest --cov=. --cov-report term-missing

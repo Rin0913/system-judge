@@ -1,11 +1,13 @@
 import logging
+from types import SimpleNamespace
 
 import mongomock
 import mongoengine as me
 from repositories import UserRepository
 
 me.connect('testdb', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient)
-user_repository = UserRepository(logging)
+user_repository = UserRepository()
+user_repository.init_app(SimpleNamespace(), logging)
 
 def test_create_user():
 
@@ -24,6 +26,9 @@ def test_set_wireguard():
     assert (user_data := user_repository.query("tuser3"))
     assert user_data['wireguard_conf']['user_conf'] == "test123"
     assert user_data['wireguard_conf']['judge_conf'] == "test321"
+    pool = {1, 2, 3, 4, 5}
+    pool = user_repository.filter_used_wg_id(pool)
+    assert len(pool) == 4
 
 def test_revoke_wireguard():
 
@@ -32,3 +37,9 @@ def test_revoke_wireguard():
     user_repository.revoke_wireguard("tuser4")
     user_data = user_repository.query("tuser4")
     assert 'wireguard_conf' not in user_data
+
+def test_operate_on_null():
+    uid = "tuser"
+    assert not user_repository.query(uid)
+    assert not user_repository.revoke_wireguard(uid)
+    assert not user_repository.set_wireguard(uid, 2, "test123", "test321")

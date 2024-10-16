@@ -1,11 +1,13 @@
 import logging
+from types import SimpleNamespace
 
 import mongomock
 import mongoengine as me
 from repositories import SubmissionRepository
 
 me.connect('testdb', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient)
-submission_repository = SubmissionRepository(logging)
+submission_repository = SubmissionRepository()
+submission_repository.init_app(SimpleNamespace(), logging)
 
 def test_create_list_submission():
 
@@ -23,8 +25,14 @@ def test_add_subtask_result():
 
     uid = submission_repository.create(1, 1)
     submission_repository.add_result(uid, "Testcase1", 5, "NoOutput.")
+    flag = 0
     for submission in submission_repository.list(1, 1):
         if submission['_id'] == uid:
-            assert submission['subtask_results'][0]['task_name'] == "Testcase1"
-            return
-    assert 0
+            if submission['subtask_results'][0]['task_name'] == "Testcase1":
+                flag = 1
+                break
+    assert flag
+
+def test_operate_on_null():
+    uid = 10000
+    assert not submission_repository.add_result(uid, "", 0, "")

@@ -17,7 +17,7 @@ class AuthService:
         self.user_repository = user_repository
         app.auth_service = self
 
-    def issue_token(self, profile):
+    def issue_token(self, profile, expire_time=7200):
 
         if self.user_repository.query(profile['uid']) is None:
             self.user_repository.create(profile['uid'])
@@ -25,7 +25,7 @@ class AuthService:
         now = int(datetime.now(tz=timezone.utc).timestamp())
         payload = {
             "iat": now,
-            "exp": now + 7200,
+            "exp": now + expire_time,
         }
 
         payload.update(profile)

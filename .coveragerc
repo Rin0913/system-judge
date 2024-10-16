@@ -1,0 +1,4 @@
+[run]
+omit =
+    main.py
+    config.py

@@ -13,3 +13,4 @@ mongoengine==0.29.1
 docker==7.1.0
 ldap3==2.9.1
 kubernetes==31.0.0
+pytest-cov==5.0.0

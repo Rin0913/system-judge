@@ -46,7 +46,7 @@ class WireguardService:
         public_keypair = self.__run_subprocess(f"echo {private_keypair} | wg pubkey")
         return private_keypair, public_keypair
 
-    def __configure_vrf(self, ipr, profile_id, wg_interface_name):
+    def __configure_vrf(self, ipr, profile_id, wg_interface_name): # pragma: no cover
         vrf_name = f"vrf_wg{profile_id}"
         ipr.link("add", ifname=vrf_name, kind="vrf", vrf_table=1000 + profile_id)
         vrf_index = ipr.link_lookup(ifname=vrf_name)[0]
@@ -85,7 +85,7 @@ class WireguardService:
         wg.write_file()
 
         # Make wg interface and vrf up
-        if if_up:
+        if if_up: # pragma: no cover
             self.logger.info(self.__run_subprocess(f"wg-quick up {wg_interface_name}"))
             ipr = IPRoute()
             self.__configure_vrf(ipr, profile_id, wg_interface_name)
