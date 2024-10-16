@@ -26,6 +26,9 @@ class Config:
 
     WG_LISTEN_IP = os.getenv("WG_LISTEN_IP")
 
+    K8S_NAMESPACE = os.getenv("K8S_NAMESPACE")
+    K8S_KUBE_CONFIG = os.getenv("K8S_KUBE_CONFIG")
+
     # General Parameters
     LOG_PATH = None # None -> stdout
     LOGGING_LEVEL = "info"

@@ -42,8 +42,9 @@ class DockerService:
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(playbook['script'])
 
-        # Copy the Dockerfile
+        # Copy the Dockerfile and entrypoint shell script
         shutil.copyfile('./templates/dockerfile.temp', os.path.join(temp_dir, 'Dockerfile'))
+        shutil.copyfile('./templates/default.sh.temp', os.path.join(temp_dir, 'default.sh'))
 
         # Build the image
         image_name = generate_random_string(16)

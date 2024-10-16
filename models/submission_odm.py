@@ -14,6 +14,7 @@ class Submission(me.Document):
     objects: QuerySetManager
 
     id = me.SequenceField(primary_key=True)
+    status = me.StringField(max_length=16, default="pending")
     user_id = me.IntField(required=True)
     problem_id = me.IntField(required=True)
     subtask_results = me.ListField(me.EmbeddedDocumentField(SubtaskResult))
