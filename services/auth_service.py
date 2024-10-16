@@ -5,20 +5,29 @@ import jwt
 class AuthService:
 
     def __init__(self):
+
         self.logger = None
         self.secret = None
+        self.user_repository = None
 
-    def init_app(self, app, jwt_secret, logger):
+    def init_app(self, app, jwt_secret, user_repository, logger):
+
         self.logger = logger
         self.secret = jwt_secret
+        self.user_repository = user_repository
         app.auth_service = self
 
     def issue_token(self, profile):
+
+        if self.user_repository.query(profile['uid']) is None:
+            self.user_repository.create(profile['uid'])
+
         now = int(datetime.now(tz=timezone.utc).timestamp())
         payload = {
             "iat": now,
             "exp": now + 7200,
         }
+
         payload.update(profile)
         token = jwt.encode(payload, self.secret, algorithm="HS256")
         return token

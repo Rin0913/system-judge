@@ -41,7 +41,7 @@ class LdapService:
         if self.enable_tls:
             conn.start_tls()
         if conn.bind():
-            profile['username'] = username
+            profile['uid'] = username
             profile['role'] = 'user'
         else:
             return None

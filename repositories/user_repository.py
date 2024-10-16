@@ -24,10 +24,11 @@ class UserRepository:
             return user.to_mongo().to_dict()
         return None
 
-    def set_wireguard(self, uid, user_conf, judge_conf):
+    def set_wireguard(self, uid, wireguard_id, user_conf, judge_conf):
         user = self.__query(uid)
         if user:
-            wg_conf = WGConf(user_conf=user_conf,
+            wg_conf = WGConf(id=wireguard_id,
+                             user_conf=user_conf,
                              judge_conf=judge_conf)
             user.update(wireguard_conf=wg_conf)
             return True
@@ -40,3 +41,11 @@ class UserRepository:
             user.save()
             return True
         return False
+
+    def filter_used_wg_id(self, pool):
+        user_documents = User.objects(wireguard_conf__exists=True)
+
+        for user in user_documents:
+            pool.remove(user['wireguard_conf']['id'])
+
+        return pool

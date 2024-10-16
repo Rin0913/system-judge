@@ -5,7 +5,7 @@ import mongoengine as me
 
 from services import AuthService, DockerService, LdapService, WireguardService
 from repositories import ProblemRepository, UserRepository
-from controllers import problem_bp, auth_bp
+from controllers import problem_bp, user_bp
 
 LOGGING_LEVEL = {'debug': logging.DEBUG, 'info': logging.INFO}
 
@@ -44,7 +44,10 @@ def initialize_app(config_name):
 
     # Services Initialization
     auth_service = AuthService()
-    auth_service.init_app(app, app.config.get('JWT_SECRET'), judge_logger)
+    auth_service.init_app(app,
+                          app.config.get('JWT_SECRET'),
+                          user_repository,
+                          judge_logger)
     docker_service = DockerService()
     docker_service.init_app(app, app.config, judge_logger)
     ldap_service = LdapService()
@@ -54,6 +57,6 @@ def initialize_app(config_name):
 
     # Registering Blueprints
     app.register_blueprint(problem_bp, url_prefix='/problems')
-    app.register_blueprint(auth_bp, url_prefix='/')
+    app.register_blueprint(user_bp, url_prefix='/')
 
     return app

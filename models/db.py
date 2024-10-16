@@ -5,9 +5,10 @@ from mongoengine.queryset.manager import QuerySetManager
 class WGConf(me.EmbeddedDocument):
     objects: QuerySetManager
 
-    id = me.IntField(default=20000)
+    id = me.IntField(required=True)
     user_conf = me.StringField(required=True)
     judge_conf = me.StringField(required=True)
+    creation_time = me.DateTimeField(default=datetime.utcnow)
 
 class User(me.Document):
     objects: QuerySetManager
@@ -38,7 +39,7 @@ class Problem(me.Document):
     is_valid = me.BooleanField(default=True)
     allow_submission = me.BooleanField(default=False)
     problem_name = me.StringField(max_length=255, default="NewProblem")
-    create_time = me.DateTimeField(default=datetime.utcnow)
+    creation_time = me.DateTimeField(default=datetime.utcnow)
     start_time = me.DateTimeField(default=datetime.utcnow)
     deadline = me.DateTimeField(default=datetime.utcnow)
     subtasks = me.ListField(me.EmbeddedDocumentField(Subtask))

@@ -1,4 +1,5 @@
 import subprocess
+import socket
 from pyroute2 import IPRoute
 from wgconfig import WGConfig
 
@@ -21,9 +22,17 @@ class WireguardService:
         self.logger = logger
 
     def init_app(self, app, server_ip, logger):
-        app.wireguard_manager = self
+        app.wireguard_service = self
         self.server_ip = server_ip
         self.logger = logger
+
+    def __check_port(self, port):
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            try:
+                s.bind(('0.0.0.0', int(port)))
+                return True
+            except socket.error:
+                return False
 
     def __run_subprocess(self, command):
         return (
@@ -48,7 +57,7 @@ class WireguardService:
 
         return vrf_name
 
-    def generate_wireguard_config(self, profile_id):
+    def generate_config(self, profile_id, if_up=True):
         # Keypairs generating
         server_keypair = self.__generate_wireguard_keypairs()
         user_keypair = self.__generate_wireguard_keypairs()
@@ -58,6 +67,10 @@ class WireguardService:
         wg_interface_name = f"wg{profile_id}"
         server_listen_port = str(20000 + int(profile_id))
         user_allowed_ips = "10.101.101.1/32, 10.89.64.0/24"
+
+        # Check if the port is idle
+        if not self.__check_port(server_listen_port):
+            return None
 
         # VPN server conf
         wg_conf_path = f"/tmp/{wg_interface_name}.conf"
@@ -71,11 +84,12 @@ class WireguardService:
         wg.add_attr(judge_keypair[1], "AllowedIPs", "10.101.101.2/32")
         wg.write_file()
 
-        # Launch interface and vrf
-        self.logger.info(self.__run_subprocess(f"wg-quick up {wg_interface_name}"))
-        ipr = IPRoute()
-        self.__configure_vrf(ipr, profile_id, wg_interface_name)
-        ipr.close()
+        # Make wg interface and vrf up
+        if if_up:
+            self.logger.info(self.__run_subprocess(f"wg-quick up {wg_interface_name}"))
+            ipr = IPRoute()
+            self.__configure_vrf(ipr, profile_id, wg_interface_name)
+            ipr.close()
 
         # Store user conf and judge conf into DB
         user_conf  = PEER_CONFIG.format(peer_private_keypair=user_keypair[0],
