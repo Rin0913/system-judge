@@ -11,3 +11,4 @@ wgconfig==1.0.4
 mongomock==4.2.0.post1
 mongoengine==0.29.1
 docker==7.1.0
+ldap3==2.9.1

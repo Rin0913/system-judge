@@ -21,12 +21,19 @@ class Config:
     HARBOR_PASSWORD = os.getenv("HARBOR_PASSWORD")
     HARBOR_PROJECT = os.getenv("HARBOR_PROJECT")
 
+    # LDAP Parameters
+    LDAP_HOST = os.getenv("LDAP_HOST")
+    LDAP_ENABLE_TLS = os.getenv("LDAP_ENABLE_TLS").lower() == 'yes'
+    LDAP_CA_PATH = os.getenv("LDAP_CA_PATH")
+    LDAP_USER_BASE_DN = os.getenv("LDAP_USER_BASE_DN")
+    LDAP_ADMIN_GROUP_DN = os.getenv("LDAP_ADMIN_GROUP_DN")
+
     # Flask
     LOG_PATH = None # None -> stdout
     LOGGING_LEVEL = "info"
     DEBUG = False
 
 class DevelopmentConfig(Config):
-    LOG_PATH = None
+    LOG_PATH = "./judge.log"
     LOGGING_LEVEL = "debug"
     DEBUG = True
