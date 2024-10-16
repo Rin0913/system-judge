@@ -4,13 +4,14 @@ from flask import Flask
 import mongoengine as me
 
 from services import AuthService, DockerService, LdapService, WireguardService
-from repositories import ProblemRepository, UserRepository
+from repositories import ProblemRepository, UserRepository, SubmissionRepository
 from controllers import problem_bp, user_bp
+from .judge_system import *
 
 LOGGING_LEVEL = {'debug': logging.DEBUG, 'info': logging.INFO}
 
 def initialize_app(config_name):
-    app = Flask(__name__)
+    app = Flask("System Judge")
 
     app.config.from_object(f"config.{config_name.capitalize()}Config")
     app.runtime_environment = config_name
@@ -41,6 +42,8 @@ def initialize_app(config_name):
     problem_repository.init_app(app, judge_logger)
     user_repository = UserRepository()
     user_repository.init_app(app, judge_logger)
+    submission_repository = SubmissionRepository()
+    submission_repository.init_app(app, judge_logger)
 
     # Services Initialization
     auth_service = AuthService()
@@ -58,5 +61,8 @@ def initialize_app(config_name):
     # Registering Blueprints
     app.register_blueprint(problem_bp, url_prefix='/problems')
     app.register_blueprint(user_bp, url_prefix='/')
+
+    # Judge System Initialization
+    initialize_judge(app.config, problem_repository, user_repository, submission_repository)
 
     return app

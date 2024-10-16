@@ -18,9 +18,8 @@ class KubernetesService:
         self.namespace = namespace
         self.v1 = client.CoreV1Api()
 
-    def __create_config_map(self, name_prefix, wg_config_data):
+    def __create_config_map(self, config_map_name, data):
 
-        config_map_name = f"{name_prefix}"
         config_map_manifest = {
             "apiVersion": "v1",
             "kind": "ConfigMap",
@@ -28,14 +27,16 @@ class KubernetesService:
                 "name": config_map_name
             },
             "data": {
-                "wg0.conf": wg_config_data
+                "wg0.conf": data
             }
         }
 
         self.v1.create_namespaced_config_map(namespace=self.namespace, body=config_map_manifest)
         return config_map_name
 
-    def __create_pod(self, name, image, command, config_map_name):
+    def __create_pod(self, name, image, command, config_maps):
+
+        config_map_wg, config_map_user = config_maps
 
         pod_manifest = {
             "apiVersion": "v1",
@@ -47,19 +48,34 @@ class KubernetesService:
                 "containers": [{
                     "name": name,
                     "image": image,
-                    "volumeMounts": [{
-                        "name": "wg-config",
-                        "mountPath": "/etc/wireguard/wg0.conf",
-                        "subPath": "wg0.conf"
-                    }],
+                    "volumeMounts": [
+                        {
+                            "name": "wg-config",
+                            "mountPath": "/etc/wireguard/wg0.conf",
+                            "subPath": "wg0.conf"
+                        },
+                        {
+                            "name": "user-credential",
+                            "mountPath": "/app/credential",
+                            "subPath": "credential"
+                        },
+                    ],
                     "command": command,
                 }],
-                "volumes": [{
-                    "name": "wg-config",
-                    "configMap": {
-                        "name": config_map_name
-                    }
-                }],
+                "volumes": [
+                    {
+                        "name": "wg-config",
+                        "configMap": {
+                            "name": config_map_wg
+                        }
+                    },
+                    {
+                        "name": "user-credential",
+                        "configMap": {
+                            "name": config_map_user
+                        }
+                    },
+                ],
                 "restartPolicy": "Never"
             }
         }
@@ -85,15 +101,17 @@ class KubernetesService:
             return exit_code
         return None
 
-    def __delete_resources(self, name, config_map_name):
+    def __delete_pod(self, name):
         self.v1.delete_namespaced_pod(name=name,
                                       namespace=self.namespace,
                                       body=client.V1DeleteOptions())
-        self.v1.delete_namespaced_config_map(name=config_map_name,
+
+    def __delete_config_map(self, name):
+        self.v1.delete_namespaced_config_map(name=name,
                                              namespace=self.namespace,
                                              body=client.V1DeleteOptions())
 
-    def execute_pod(self, image, task_name, wg_config_data):
+    def execute_pod(self, image, task_name, wg_config_data, credential=""):
 
         def generate_random_string(length=32):
             characters = string.ascii_lowercase + string.digits
@@ -101,9 +119,12 @@ class KubernetesService:
 
         name = generate_random_string()
         command = ["/bin/bash", "/app/default.sh", f"{task_name}.sh"]
-        config_map_name = self.__create_config_map(f"{image}-{name}", wg_config_data)
-        self.__create_pod(name, image, command, config_map_name)
+        config_map_wg = self.__create_config_map(f"{image}-{name}-wg", wg_config_data)
+        config_map_user = self.__create_config_map(f"{image}-{name}-user", credential)
+        self.__create_pod(name, image, command, (config_map_wg, config_map_user))
         self.__wait_for_pod_completion(name)
         result = (self.__get_exit_code(name), self.__get_log(name))
-        self.__delete_resources(name, config_map_name)
+        self.__delete_pod(name)
+        self.__delete_config_map(config_map_wg)
+        self.__delete_config_map(config_map_user)
         return result

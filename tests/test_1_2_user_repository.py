@@ -38,8 +38,16 @@ def test_revoke_wireguard():
     user_data = user_repository.query("tuser4")
     assert 'wireguard_conf' not in user_data
 
+def test_set_credential():
+
+    user_repository.create("tuser5")
+    user_repository.set_credential("tuser5", "abc123")
+    user_data = user_repository.query("tuser5")
+    assert user_data['credential'] == "abc123"
+
 def test_operate_on_null():
     uid = "tuser"
     assert not user_repository.query(uid)
     assert not user_repository.revoke_wireguard(uid)
-    assert not user_repository.set_wireguard(uid, 2, "test123", "test321")
+    assert not user_repository.set_credential(uid, "")
+    assert not user_repository.set_wireguard(uid, 2, "", "")

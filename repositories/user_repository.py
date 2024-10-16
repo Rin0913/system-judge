@@ -24,6 +24,13 @@ class UserRepository:
             return user.to_mongo().to_dict()
         return None
 
+    def set_credential(self, uid, credential):
+        user = self.__query(uid)
+        if user:
+            user.update(credential=credential)
+            return True
+        return False
+
     def set_wireguard(self, uid, wireguard_id, user_conf, judge_conf):
         user = self.__query(uid)
         if user:

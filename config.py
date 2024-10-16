@@ -33,8 +33,12 @@ class Config:
     LOG_PATH = None # None -> stdout
     LOGGING_LEVEL = "info"
     DEBUG = False
+    WORKER_NUM = int(os.getenv("WORKER_NUM", "2"))
 
 class DevelopmentConfig(Config):
     LOG_PATH = "./judge.log"
     LOGGING_LEVEL = "debug"
     DEBUG = True
+
+def get_runtime_config():
+    return os.getenv("RUNTIME_CONFIG", "Development")

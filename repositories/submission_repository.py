@@ -8,7 +8,7 @@ class SubmissionRepository:
         self.logger = logger
 
     def init_app(self, app, logger):
-        app.user_repository = self
+        app.submission_repository = self
         self.logger = logger
 
     def create(self, user_id, problem_id):
@@ -35,3 +35,21 @@ class SubmissionRepository:
             submission.save()
             return True
         return False
+
+    def score(self, submission_id, point):
+        submission = Submission.objects(id=submission_id).first()
+        if submission:
+            submission.update(point=point, status='completed')
+            return True
+        return False
+
+    def set_status(self, submission_id, status):
+        submission = Submission.objects(id=submission_id).first()
+        if submission:
+            submission.update(status=status)
+            return True
+        return False
+
+    def fetch_uncompleted_submissions(self):
+        submissions = Submission.objects(status__ne='completed')
+        return [mongo_utils.mongo_to_dict(s) for s in submissions]

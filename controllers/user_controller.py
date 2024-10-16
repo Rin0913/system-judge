@@ -31,11 +31,16 @@ def request_vpn_conf():
 @access_control.require_login
 def whoami():
     user = current_app.user_repository.query(g.user['uid'])
-    if user:
-        if 'wireguard_conf' in user:
-            del user['wireguard_conf']['judge_conf']
-        return user
-    abort(403)
+    if 'wireguard_conf' in user:
+        del user['wireguard_conf']['judge_conf']
+    return user
+
+@user_bp.route('/set_credential', methods=['PUT'])
+@access_control.require_login
+def set_credential():
+    credential = request.json.get('credential')
+    current_app.user_repository.set_credential(g.user['uid'], credential)
+    return {"successful": True}
 
 @user_bp.route('/get_user_token', methods=['POST'])
 @access_control.require_development_environment
