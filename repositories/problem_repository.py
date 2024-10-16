@@ -1,13 +1,7 @@
 from datetime import datetime
 from models import Problem, Subtask, Playbook
+from .utils import mongo_utils
 
-
-def mongo_to_dict(document):
-    doc_dict = document.to_mongo().to_dict()
-    for key, value in doc_dict.items():
-        if isinstance(value, datetime):
-            doc_dict[key] = value.strftime('%Y-%m-%d %H:%M:%S')
-    return doc_dict
 
 class ProblemRepository:
 
@@ -30,7 +24,7 @@ class ProblemRepository:
 
     def list(self):
         problems = Problem.objects(is_valid=True)
-        problems = [mongo_to_dict(problem) for problem in problems]
+        problems = [mongo_utils.mongo_to_dict(problem) for problem in problems]
         for problem in problems:
             del problem['subtasks']
             del problem['playbooks']
@@ -42,7 +36,7 @@ class ProblemRepository:
     def query(self, problem_id):
         problem = self.__query(problem_id)
         if problem:
-            return mongo_to_dict(problem)
+            return mongo_utils.mongo_to_dict(problem)
         return None
 
     def delete(self, problem_id):
