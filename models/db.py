@@ -25,13 +25,6 @@ class Playbook(me.EmbeddedDocument):
     playbook_name = me.StringField(max_length=255, required=True)
     script = me.StringField()
 
-class Dependency(me.EmbeddedDocument):
-    objects: QuerySetManager
-
-    id = me.SequenceField(primary_key=True)
-    prerequisite = me.StringField(max_length=255, required=True)
-    task = me.StringField(max_length=255, required=True)
-
 class Problem(me.Document):
     objects: QuerySetManager
 
@@ -44,5 +37,6 @@ class Problem(me.Document):
     deadline = me.DateTimeField(default=datetime.utcnow)
     subtasks = me.ListField(me.EmbeddedDocumentField(Subtask))
     playbooks = me.ListField(me.EmbeddedDocumentField(Playbook))
-    dependencies = me.ListField(me.EmbeddedDocumentField(Dependency))
+
     image_name = me.StringField(max_length=1024)
+    order = me.ListField(me.StringField(max_length=255))

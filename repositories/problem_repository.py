@@ -114,3 +114,8 @@ class ProblemRepository:
         problem = self.__query(problem_id)
         if problem:
             problem.update(image_name=image_name)
+
+    def set_order(self, problem_id, order):
+        problem = self.__query(problem_id)
+        if problem:
+            problem.update(order=order)
