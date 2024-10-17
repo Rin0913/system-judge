@@ -1,6 +1,6 @@
 from datetime import datetime
 from collections import defaultdict
-from flask import jsonify, request, Blueprint, current_app, abort, g
+from flask import jsonify, request, Blueprint, current_app, abort
 from .utils import access_control
 
 problem_bp = Blueprint('problem', __name__)
@@ -18,12 +18,6 @@ def list_problems():
 def create_problem():
     problem_id = current_app.problem_repository.create()
     return jsonify({'problem_id': problem_id})
-
-@problem_bp.route('/<string:problem_id>', methods=['POST'])
-@access_control.require_login
-def user_submit(problem_id):
-    current_app.submission_repository.create(g.user['uid'], problem_id)
-    return jsonify({'sucessfully': True})
 
 @problem_bp.route('/<string:problem_id>', methods=['PUT'])
 @access_control.require_login
