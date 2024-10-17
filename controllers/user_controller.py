@@ -16,12 +16,18 @@ def login():
 @access_control.require_login
 def request_vpn_conf():
     pool = set()
-    for i in range(20000, 60000):
+    for i in range(40000):
         pool.add(i)
+    user_data = current_app.user_repository.query(g.user['uid'])
+    wg_id = None
+    if 'wireguard_conf' in user_data:
+        wg_id = user_data['wireguard_conf']['id']
     pool = current_app.user_repository.filter_used_wg_id(pool)
     for i in pool:
         result = current_app.wireguard_service.generate_config(i)
         if result is not None:
+            if wg_id is not None:
+                current_app.wireguard_service.revoke_config(wg_id)
             user_conf, judge_conf = result
             current_app.user_repository.set_wireguard(g.user['uid'], i, user_conf, judge_conf)
             return {"successful": True}

@@ -1,5 +1,6 @@
 import subprocess
 import socket
+import os
 from pyroute2 import IPRoute
 from wgconfig import WGConfig
 
@@ -46,16 +47,37 @@ class WireguardService:
         public_keypair = self.__run_subprocess(f"echo {private_keypair} | wg pubkey")
         return private_keypair, public_keypair
 
-    def __configure_vrf(self, ipr, profile_id, wg_interface_name): # pragma: no cover
+    def __configure_vrf(self, profile_id, wg_interface_name): # pragma: no cover
+
         vrf_name = f"vrf_wg{profile_id}"
+
+        ipr = IPRoute()
         ipr.link("add", ifname=vrf_name, kind="vrf", vrf_table=1000 + profile_id)
         vrf_index = ipr.link_lookup(ifname=vrf_name)[0]
         ipr.link("set", index=vrf_index, state="up")
-
         wg_index = ipr.link_lookup(ifname=wg_interface_name)[0]
         ipr.link("set", index=wg_index, master=vrf_index)
+        ipr.close()
 
         return vrf_name
+
+    def revoke_config(self, profile_id):
+        vrf_name = f"vrf_wg{profile_id}"
+        wg_interface_name = f"wg{profile_id}"
+        wg_conf_path = f"/etc/wireguard/{wg_interface_name}.conf"
+
+        ipr = IPRoute()
+        try:
+            vrf_index = ipr.link_lookup(ifname=vrf_name)[0]
+            wg_index = ipr.link_lookup(ifname=wg_interface_name)[0]
+            ipr.link("set", index=wg_index, master=0)
+            ipr.link("del", index=vrf_index)
+            self.logger.info(self.__run_subprocess(f"wg-quick down {wg_interface_name}"))
+            os.remove(wg_conf_path)
+        except Exception as e: # pylint: disable=broad-except
+            self.logger.error(e)
+        finally:
+            ipr.close()
 
     def generate_config(self, profile_id, if_up=True):
         # Keypairs generating
@@ -86,10 +108,10 @@ class WireguardService:
         # Really create the interface and make them up
         if if_up: # pragma: no cover
             wg.write_file()
+            print("write to files")
+            self.logger.warning("write to files")
             self.logger.info(self.__run_subprocess(f"wg-quick up {wg_interface_name}"))
-            ipr = IPRoute()
-            self.__configure_vrf(ipr, profile_id, wg_interface_name)
-            ipr.close()
+            self.__configure_vrf(profile_id, wg_interface_name)
 
         # Store user conf and judge conf into DB
         user_conf  = PEER_CONFIG.format(peer_private_keypair=user_keypair[0],
