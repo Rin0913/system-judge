@@ -73,7 +73,7 @@ class WireguardService:
             return None
 
         # VPN server conf
-        wg_conf_path = f"/tmp/{wg_interface_name}.conf"
+        wg_conf_path = f"/etc/wireguard/{wg_interface_name}.conf"
         wg = WGConfig(wg_conf_path)
         wg.add_attr(None, "PrivateKey", server_keypair[0])
         wg.add_attr(None, "ListenPort", server_listen_port)
