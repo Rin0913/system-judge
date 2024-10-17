@@ -17,4 +17,4 @@ class User(me.Document):
     id = me.SequenceField(primary_key=True)
     name = me.StringField(max_length=255, required=True)
     wireguard_conf = me.EmbeddedDocumentField(WGConf)
-    credential = me.StringField(max_length=1024)
+    credential = me.StringField()
