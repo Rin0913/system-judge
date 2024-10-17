@@ -78,7 +78,8 @@ def update_problem(problem_id):
         current_app.problem_repository.add_subtask(problem_id,
                                                    subtask['task_name'],
                                                    subtask['point'],
-                                                   subtask['script'])
+                                                   subtask['script'],
+                                                   subtask['depend_on'])
         existing_task_name.add(subtask['task_name'])
         for depend_on in subtask['depend_on']:
             dependencies_list.append([depend_on, subtask['task_name']])
@@ -107,11 +108,12 @@ def update_problem(problem_id):
     return jsonify({'successful': True})
 
 @problem_bp.route('/<string:problem_id>', methods=['GET'])
+@access_control.require_login
 def query_problem(problem_id):
     problem_data = current_app.problem_repository.query(problem_id)
     if problem_data is None:
         abort(404)
-    if (not hasattr(g, 'user')) or g.user is None or g.user['role'] != 'admin':
+    if g.user['role'] != 'admin':
         del problem_data['subtasks']
         del problem_data['playbooks']
     if 'image_name' in problem_data:

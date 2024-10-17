@@ -10,6 +10,7 @@ class Subtask(me.EmbeddedDocument):
     task_name = me.StringField(max_length=255, required=True)
     point = me.IntField(required=True)
     script = me.StringField()
+    depends_on = me.ListField(me.StringField(max_length=255))
 
 class Playbook(me.EmbeddedDocument):
     objects: QuerySetManager

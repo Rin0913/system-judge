@@ -71,11 +71,12 @@ class ProblemRepository:
 
         problem.subtasks = []
         problem.playbooks = []
+        problem.dependencies = []
         problem.save()
 
         return True
 
-    def add_subtask(self, problem_id, task_name, point, script):
+    def add_subtask(self, problem_id, task_name, point, script, depends_on=tuple()): #pylint: disable=too-many-arguments,too-many-positional-arguments
 
         problem = self.__query(problem_id)
         if not problem:
@@ -84,7 +85,8 @@ class ProblemRepository:
         subtask = Subtask(
             task_name=task_name,
             point=point,
-            script=script
+            script=script,
+            depends_on=depends_on
         )
         problem.subtasks.append(subtask)
         problem.save()

@@ -3,15 +3,6 @@ from .utils import access_control
 
 user_bp = Blueprint('user', __name__)
 
-@user_bp.route('/login', methods=['POST'])
-def login():
-    username = request.json.get('username')
-    password = request.json.get('password')
-    profile = current_app.ldap_service.authenticate(username, password)
-    if profile:
-        return current_app.auth_service.issue_token(profile)
-    abort(401)
-
 @user_bp.route('/request_vpn', methods=['POST'])
 @access_control.require_login
 def request_vpn_conf():
