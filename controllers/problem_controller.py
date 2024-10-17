@@ -1,6 +1,6 @@
 from datetime import datetime
 from collections import defaultdict
-from flask import jsonify, request, Blueprint, current_app, abort
+from flask import jsonify, request, Blueprint, current_app, abort, g
 from .utils import access_control
 
 problem_bp = Blueprint('problem', __name__)
@@ -9,7 +9,11 @@ problem_bp = Blueprint('problem', __name__)
 def list_problems():
     problem_data = current_app.problem_repository.list()
     for p in problem_data:
-        del p['image_name']
+        if 'image_name' in p:
+            del p['image_name']
+        if 'order' in p:
+            del p['order']
+        del p['description']
     return jsonify(problem_data)
 
 @problem_bp.route('/', methods=['POST'])
@@ -103,12 +107,17 @@ def update_problem(problem_id):
     return jsonify({'successful': True})
 
 @problem_bp.route('/<string:problem_id>', methods=['GET'])
-@access_control.require_login
-@access_control.require_admin
 def query_problem(problem_id):
     problem_data = current_app.problem_repository.query(problem_id)
     if problem_data is None:
         abort(404)
+    if (not hasattr(g, 'user')) or g.user is None or g.user['role'] != 'admin':
+        del problem_data['subtasks']
+        del problem_data['playbooks']
+    if 'image_name' in problem_data:
+        del problem_data['image_name']
+    if 'order' in problem_data:
+        del problem_data['order']
     return jsonify(problem_data)
 
 @problem_bp.route('/<string:problem_id>', methods=['DELETE'])

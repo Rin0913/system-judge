@@ -14,6 +14,7 @@ DNS = 8.8.8.8
 PublicKey = {server_public_keypair}
 Endpoint = {server_ip}:{server_listen_port}
 AllowedIPs = 10.101.101.0/24
+PersistentKeepalive = 3
 """.strip()
 
 class WireguardService:

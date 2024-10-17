@@ -1,6 +1,6 @@
 #!/bin/bash
 
-wg-quick up wg0
+wg-quick up wg0 2>/dev/null
 
 cd /app/
 
