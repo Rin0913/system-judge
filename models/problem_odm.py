@@ -25,6 +25,7 @@ class Problem(me.Document):
     is_valid = me.BooleanField(default=True)
     allow_submission = me.BooleanField(default=False)
     problem_name = me.StringField(max_length=255, default="NewProblem")
+    description = me.StringField(default="")
     creation_time = me.DateTimeField(default=datetime.utcnow)
     start_time = me.DateTimeField(default=datetime.utcnow)
     deadline = me.DateTimeField(default=datetime.utcnow)

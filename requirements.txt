@@ -14,3 +14,6 @@ docker==7.1.0
 ldap3==2.9.1
 kubernetes==31.0.0
 pytest-cov==5.0.0
+Flask-Cors==5.0.0
+redis==5.1.1
+redlock-py==1.0.8

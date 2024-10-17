@@ -1,7 +1,11 @@
 import logging
 import sys
+
+import redis
 from flask import Flask
+from flask_cors import CORS
 import mongoengine as me
+from redlock import Redlock
 
 from services import AuthService, DockerService, LdapService, WireguardService
 from repositories import ProblemRepository, UserRepository, SubmissionRepository
@@ -11,10 +15,13 @@ from .judge_system import *
 LOGGING_LEVEL = {'debug': logging.DEBUG, 'info': logging.INFO}
 
 def initialize_app(config_name):
-    app = Flask("System Judge")
 
+    # App Initialization
+    app = Flask("System Judge")
     app.config.from_object(f"config.{config_name.capitalize()}Config")
     app.runtime_environment = config_name
+    if app.config.get('ALLOW_CORS'):
+        CORS(app)
 
     # Logger Initialization
     judge_logger = logging.getLogger(__name__)
@@ -61,6 +68,11 @@ def initialize_app(config_name):
     # Registering Blueprints
     app.register_blueprint(problem_bp, url_prefix='/problems')
     app.register_blueprint(user_bp, url_prefix='/')
+    # app.register_blueprint(submission_bp, url_prefix='/submission')
+
+    # Others Initialization
+    redis_dlm = Redlock([{"host": "localhost", "port": 6379, "db": 0}])
+    app.redis_dlm = redis_dlm
 
     # Judge System Initialization
     initialize_judge(app.config,

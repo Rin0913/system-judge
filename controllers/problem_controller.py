@@ -19,7 +19,7 @@ def create_problem():
     problem_id = current_app.problem_repository.create()
     return jsonify({'problem_id': problem_id})
 
-@problem_bp.route('/<string:problem_id>', methods=['PUT'])
+@problem_bp.route('/<int:problem_id>', methods=['PUT'])
 @access_control.require_login
 @access_control.require_admin
 def update_problem(problem_id):
@@ -61,10 +61,11 @@ def update_problem(problem_id):
         return reversed(stack)
 
     current_app.problem_repository.clear_content(problem_id)
-    result = current_app.problem_repository.update(problem_id,
-                                                   request.json.get('problem_name'),
-                                                   f_time(request.json.get('start_time')),
-                                                   f_time(request.json.get('deadline')))
+    current_app.problem_repository.update(problem_id,
+                                          request.json.get('problem_name'),
+                                          f_time(request.json.get('start_time')),
+                                          f_time(request.json.get('deadline')))
+    current_app.problem_repository.update_description(problem_id, request.json.get('description'))
     existing_task_name = set()
     dependencies_list = []
     for subtask in request.json.get('subtasks'):
@@ -99,7 +100,7 @@ def update_problem(problem_id):
     image_name = current_app.docker_service.build_image(problem_data)
     current_app.problem_repository.set_image_name(problem_id, image_name)
     current_app.problem_repository.set_order(problem_id, tsort_result)
-    return jsonify({'successful': result})
+    return jsonify({'successful': True})
 
 @problem_bp.route('/<string:problem_id>', methods=['GET'])
 @access_control.require_login

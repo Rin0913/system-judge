@@ -11,6 +11,9 @@ class Config:
     DB_PASSWORD = os.getenv('DB_PASSWORD')
     DB_NAME = os.getenv('DB_NAME')
 
+    REDIS_HOST = os.getenv('REDIS_HOST')
+    REDIS_PORT = os.getenv('REDIS_PORT')
+
     JWT_SECRET = os.getenv('JWT_SECRET')
 
     HARBOR_HOST = os.getenv("HARBOR_HOST")
@@ -33,12 +36,14 @@ class Config:
     LOG_PATH = None # None -> stdout
     LOGGING_LEVEL = "info"
     DEBUG = False
+    ALLOW_CORS = False
     WORKER_NUM = int(os.getenv("WORKER_NUM", "2"))
 
 class DevelopmentConfig(Config):
     LOG_PATH = "./judge.log"
     LOGGING_LEVEL = "debug"
     DEBUG = True
+    ALLOW_CORS = True
 
 def get_runtime_config():
     return os.getenv("RUNTIME_CONFIG", "Development")

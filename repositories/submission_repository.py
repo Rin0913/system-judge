@@ -19,9 +19,15 @@ class SubmissionRepository:
         submission.save()
         return submission.id
 
+    def query(self, submission_id):
+        submission = Submission.objects(id=submission_id).first()
+        if submission is None:
+            return None
+        return mongo_utils.mongo_to_dict(submission)
+
     def list(self, user_id, problem_id):
         submissions = Submission.objects(user_id=user_id, problem_id=problem_id)
-        return [s.to_mongo().to_dict() for s in submissions]
+        return [mongo_utils.mongo_to_dict(s) for s in submissions]
 
     def add_result(self, submission_id, task_name, point, log):
         result = SubtaskResult(
