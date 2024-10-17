@@ -1,16 +1,33 @@
 from datetime import datetime
 from collections import defaultdict
-from flask import jsonify, request, Blueprint, current_app, abort
+from flask import jsonify, request, Blueprint, current_app, abort, g
+from .utils import access_control
 
 problem_bp = Blueprint('problem', __name__)
 
+@problem_bp.route('/', methods=['GET'])
+def list_problems():
+    problem_data = current_app.problem_repository.list()
+    for p in problem_data:
+        del p['image_name']
+    return jsonify(problem_data)
 
 @problem_bp.route('/', methods=['POST'])
+@access_control.require_login
+@access_control.require_admin
 def create_problem():
     problem_id = current_app.problem_repository.create()
     return jsonify({'problem_id': problem_id})
 
+@problem_bp.route('/<string:problem_id>', methods=['POST'])
+@access_control.require_login
+def user_submit(problem_id):
+    current_app.submission_repository.create(g.user['uid'], problem_id)
+    return jsonify({'sucessfully': True})
+
 @problem_bp.route('/<string:problem_id>', methods=['PUT'])
+@access_control.require_login
+@access_control.require_admin
 def update_problem(problem_id):
 
     def f_time(time):
@@ -91,18 +108,17 @@ def update_problem(problem_id):
     return jsonify({'successful': result})
 
 @problem_bp.route('/<string:problem_id>', methods=['GET'])
+@access_control.require_login
+@access_control.require_admin
 def query_problem(problem_id):
     problem_data = current_app.problem_repository.query(problem_id)
     if problem_data is None:
         abort(404)
     return jsonify(problem_data)
 
-@problem_bp.route('/', methods=['GET'])
-def list_problems():
-    problem_data = current_app.problem_repository.list()
-    return jsonify(problem_data)
-
 @problem_bp.route('/<string:problem_id>', methods=['DELETE'])
+@access_control.require_login
+@access_control.require_admin
 def del_problem(problem_id):
     result = current_app.problem_repository.delete(problem_id)
     return jsonify({'successful': result})
