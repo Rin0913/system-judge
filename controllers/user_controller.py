@@ -45,7 +45,8 @@ def set_credential():
 @user_bp.route('/submit/<string:problem_id>', methods=['POST'])
 @access_control.require_login
 def user_submit(problem_id):
-    current_app.submission_repository.create(g.user['uid'], problem_id)
+    user_id = current_app.user_repository.query(g.user['uid'])['_id']
+    current_app.submission_repository.create(user_id, problem_id)
     return {'sucessfully': True}
 
 @user_bp.route('/get_user_token', methods=['POST'])
