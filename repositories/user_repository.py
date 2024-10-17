@@ -24,6 +24,12 @@ class UserRepository:
             return user.to_mongo().to_dict()
         return None
 
+    def query_by_id(self, user_id):
+        user = User.objects(id=user_id).first()
+        if user:
+            return user.to_mongo().to_dict()
+        return None
+
     def set_credential(self, uid, credential):
         user = self.__query(uid)
         if user:

@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, g, request, abort
 from .utils import access_control
 
-user_bp = Blueprint('auth', __name__)
+user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/login', methods=['POST'])
 def login():
@@ -20,7 +20,7 @@ def request_vpn_conf():
         pool.add(i)
     pool = current_app.user_repository.filter_used_wg_id(pool)
     for i in pool:
-        result = current_app.wireguard_service.generate_config(i, if_up=False)
+        result = current_app.wireguard_service.generate_config(i)
         if result is not None:
             user_conf, judge_conf = result
             current_app.user_repository.set_wireguard(g.user['uid'], i, user_conf, judge_conf)
@@ -34,6 +34,17 @@ def whoami():
     if 'wireguard_conf' in user:
         del user['wireguard_conf']['judge_conf']
     return user
+
+@user_bp.route('/submissions', methods=['GET'])
+@access_control.require_login
+def list_my_submissions():
+    user_id = current_app.user_repository.query(g.user['uid'])['_id']
+    result = []
+    for problem in current_app.problem_repository.list():
+        result += current_app.submission_repository.list(user_id, problem['_id'])
+
+    result.sort(key=lambda x: x['creation_time'])
+    return result
 
 @user_bp.route('/set_credential', methods=['PUT'])
 @access_control.require_login

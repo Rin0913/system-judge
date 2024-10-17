@@ -10,3 +10,7 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 COPY ./scripts/ /app/
+COPY default.sh /app/
+COPY ansible.cfg /app/
+
+RUN chmod +x /app/*.sh

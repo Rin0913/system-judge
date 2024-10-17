@@ -63,6 +63,10 @@ def initialize_app(config_name):
     app.register_blueprint(user_bp, url_prefix='/')
 
     # Judge System Initialization
-    initialize_judge(app.config, problem_repository, user_repository, submission_repository)
+    initialize_judge(app.config,
+                     problem_repository,
+                     user_repository,
+                     submission_repository,
+                     judge_logger)
 
     return app

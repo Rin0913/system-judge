@@ -82,10 +82,10 @@ class WireguardService:
         wg.add_attr(user_keypair[1], "AllowedIPs", user_allowed_ips)
         wg.add_peer(judge_keypair[1])
         wg.add_attr(judge_keypair[1], "AllowedIPs", "10.101.101.2/32")
-        wg.write_file()
 
-        # Make wg interface and vrf up
+        # Really create the interface and make them up
         if if_up: # pragma: no cover
+            wg.write_file()
             self.logger.info(self.__run_subprocess(f"wg-quick up {wg_interface_name}"))
             ipr = IPRoute()
             self.__configure_vrf(ipr, profile_id, wg_interface_name)

@@ -2,4 +2,6 @@
 
 wg-quick up wg0
 
+cd /app/
+
 $1

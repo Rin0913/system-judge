@@ -27,7 +27,7 @@ class KubernetesService:
                 "name": config_map_name
             },
             "data": {
-                "wg0.conf": data
+                "file": data
             }
         }
 
@@ -52,14 +52,20 @@ class KubernetesService:
                         {
                             "name": "wg-config",
                             "mountPath": "/etc/wireguard/wg0.conf",
-                            "subPath": "wg0.conf"
+                            "subPath": "file"
                         },
                         {
                             "name": "user-credential",
                             "mountPath": "/app/credential",
-                            "subPath": "credential"
+                            "subPath": "file"
                         },
                     ],
+                    "securityContext": {
+                        "capabilities": {
+                            "add": ["NET_ADMIN", "SYS_MODULE"]
+                        }
+                    },
+                    "privileged": True,
                     "command": command,
                 }],
                 "volumes": [
@@ -72,7 +78,8 @@ class KubernetesService:
                     {
                         "name": "user-credential",
                         "configMap": {
-                            "name": config_map_user
+                            "name": config_map_user,
+                            "defaultMode": 0o600
                         }
                     },
                 ],
@@ -111,16 +118,16 @@ class KubernetesService:
                                              namespace=self.namespace,
                                              body=client.V1DeleteOptions())
 
-    def execute_pod(self, image, task_name, wg_config_data, credential=""):
+    def execute_pod(self, image, task_name, wg_config_data, credential):
 
         def generate_random_string(length=32):
             characters = string.ascii_lowercase + string.digits
             return ''.join(random.choice(characters) for _ in range(length))
 
-        name = generate_random_string()
-        command = ["/bin/bash", "/app/default.sh", f"{task_name}.sh"]
-        config_map_wg = self.__create_config_map(f"{image}-{name}-wg", wg_config_data)
-        config_map_user = self.__create_config_map(f"{image}-{name}-user", credential)
+        name = "judge-" + generate_random_string()
+        command = ["/bin/bash", "/app/default.sh", f"./{task_name}.sh"]
+        config_map_wg = self.__create_config_map(f"wg-{name}", wg_config_data)
+        config_map_user = self.__create_config_map(f"user-{name}", credential)
         self.__create_pod(name, image, command, (config_map_wg, config_map_user))
         self.__wait_for_pod_completion(name)
         result = (self.__get_exit_code(name), self.__get_log(name))

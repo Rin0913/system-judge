@@ -21,7 +21,7 @@ class SubmissionRepository:
 
     def list(self, user_id, problem_id):
         submissions = Submission.objects(user_id=user_id, problem_id=problem_id)
-        return [mongo_utils.mongo_to_dict(s) for s in submissions]
+        return [s.to_mongo().to_dict() for s in submissions]
 
     def add_result(self, submission_id, task_name, point, log):
         result = SubtaskResult(
