@@ -1,6 +1,16 @@
 from functools import wraps
 from flask import Flask, request, jsonify, abort, g, current_app
 
+def authenticate(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        authorization_header = request.headers.get("Authorization")
+        if authorization_header:
+            token = authorization_header.replace('Bearer ', '', 1)
+            g.user = current_app.auth_service.authenticate_token(token)
+        return f(*args, **kwargs)
+    return decorated_function
+
 def require_login(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):

@@ -36,12 +36,14 @@ def judge_worker(problem_repository,
         score = 0
         for task in problem_data['order']:
             try:
-                code, log = kubernetes_service.execute_pod(
-                    problem_data['image_name'],
-                    task,
-                    user_data['wireguard_conf']['judge_conf'],
-                    user_data['credential']
-                )
+                code, log = (1, "Unable to establish wireguard tunnel.")
+                if 'wireguard_conf' in user_data:
+                    code, log = kubernetes_service.execute_pod(
+                        problem_data['image_name'],
+                        task,
+                        user_data['wireguard_conf']['judge_conf'],
+                        user_data['credential'] if 'credential' in user_data else ''
+                    )
             except Exception: # pylint: disable=W0718
                 logger.error(traceback.format_exc())
             logger.debug(f"Finished task {task} with code {code} and log {log}.")

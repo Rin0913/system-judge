@@ -6,14 +6,22 @@ from .utils import access_control
 problem_bp = Blueprint('problem', __name__)
 
 @problem_bp.route('/', methods=['GET'])
+@access_control.authenticate
 def list_problems():
     problem_data = current_app.problem_repository.list()
+    is_admin = True
+    if (not hasattr(g, 'user')) or g.user is None or g.user['role'] != 'admin':
+        is_admin = False
     for p in problem_data:
         if 'image_name' in p:
             del p['image_name']
         if 'order' in p:
             del p['order']
         del p['description']
+    for i in range(len(problem_data) - 1, -1, -1):
+        if (not problem_data[i]['allow_submission']) and (not is_admin):
+            print(is_admin)
+            del problem_data[i]
     return jsonify(problem_data)
 
 @problem_bp.route('/', methods=['POST'])
@@ -68,7 +76,8 @@ def update_problem(problem_id):
     current_app.problem_repository.update(problem_id,
                                           request.json.get('problem_name'),
                                           f_time(request.json.get('start_time')),
-                                          f_time(request.json.get('deadline')))
+                                          f_time(request.json.get('deadline')),
+                                          request.json.get('allow_submission'))
     current_app.problem_repository.update_description(problem_id, request.json.get('description'))
     existing_task_name = set()
     dependencies_list = []
@@ -108,12 +117,12 @@ def update_problem(problem_id):
     return jsonify({'successful': True})
 
 @problem_bp.route('/<string:problem_id>', methods=['GET'])
-@access_control.require_login
+@access_control.authenticate
 def query_problem(problem_id):
     problem_data = current_app.problem_repository.query(problem_id)
     if problem_data is None:
         abort(404)
-    if g.user['role'] != 'admin':
+    if (not hasattr(g, 'user')) or g.user is None or g.user['role'] != 'admin':
         del problem_data['subtasks']
         del problem_data['playbooks']
     if 'image_name' in problem_data:

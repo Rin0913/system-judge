@@ -44,7 +44,8 @@ def test_update_query_problem():
     problem_repository.update(problem_id,
                               problem_name,
                               start_time,
-                              deadline)
+                              deadline,
+                              True)
     problem_repository.set_image_name(problem_id, 'a')
     problem_repository.set_order(problem_id, ['a'])
     problem_data = problem_repository.query(problem_id)
@@ -78,7 +79,7 @@ def test_operate_on_null():
     now = datetime.now()
     assert not problem_repository.query(problem_id)
     assert not problem_repository.delete(problem_id)
-    assert not problem_repository.update(problem_id, '', now, now)
+    assert not problem_repository.update(problem_id, '', now, now, True)
     assert not problem_repository.clear_content(problem_id)
     assert not problem_repository.add_subtask(problem_id, '', 0, '')
     assert not problem_repository.add_playbook(problem_id, '', '')
