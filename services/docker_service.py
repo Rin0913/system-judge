@@ -38,7 +38,7 @@ class DockerService:
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(task['script'])
         for playbook in problem_data['playbooks']:
-            file_path = os.path.join(temp_dir, f"scripts/{playbook['playbook_name']}.yaml")
+            file_path = os.path.join(temp_dir, f"scripts/{playbook['playbook_name']}")
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(playbook['script'])
 
