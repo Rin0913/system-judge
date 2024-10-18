@@ -65,7 +65,6 @@ class KubernetesService:
                             "add": ["NET_ADMIN", "SYS_MODULE"]
                         }
                     },
-                    "privileged": True,
                     "command": command,
                 }],
                 "volumes": [
