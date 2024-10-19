@@ -59,3 +59,7 @@ class SubmissionRepository:
     def fetch_uncompleted_submissions(self):
         submissions = Submission.objects(status__ne='completed')
         return [mongo_utils.mongo_to_dict(s) for s in submissions]
+
+    def fetch_by_problem_id(self, problem_id):
+        submissions = Submission.objects(status='completed', problem_id=problem_id)
+        return [mongo_utils.mongo_to_dict(s) for s in submissions]

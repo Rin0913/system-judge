@@ -9,7 +9,7 @@ from redlock import Redlock
 
 from services import AuthService, DockerService, LdapService, WireguardService
 from repositories import ProblemRepository, UserRepository, SubmissionRepository
-from controllers import problem_bp, user_bp, auth_bp
+from controllers import problem_bp, user_bp, auth_bp, grade_bp
 from .judge_system import *
 
 LOGGING_LEVEL = {'debug': logging.DEBUG, 'info': logging.INFO}
@@ -69,6 +69,7 @@ def initialize_app(config_name):
     app.register_blueprint(problem_bp, url_prefix='/problems')
     app.register_blueprint(user_bp, url_prefix='/')
     app.register_blueprint(auth_bp, url_prefix='/')
+    app.register_blueprint(grade_bp, url_prefix='/grades')
 
     # Redis Initialization
     app.redis_dlm = Redlock([{"host": "localhost", "port": 6379, "db": 0}])
