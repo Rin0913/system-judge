@@ -70,9 +70,12 @@ def initialize_app(config_name):
     app.register_blueprint(user_bp, url_prefix='/')
     app.register_blueprint(auth_bp, url_prefix='/')
 
-    # Others Initialization
-    redis_dlm = Redlock([{"host": "localhost", "port": 6379, "db": 0}])
-    app.redis_dlm = redis_dlm
+    # Redis Initialization
+    app.redis_dlm = Redlock([{"host": "localhost", "port": 6379, "db": 0}])
+
+    # Network Initialization
+    for wg_profile_id in user_repository.list_wg_id():
+        wireguard_service.set_up(wg_profile_id)
 
     # Judge System Initialization
     initialize_judge(app.config,

@@ -55,6 +55,15 @@ class UserRepository:
             return True
         return False
 
+    def list_wg_id(self):
+        result = []
+        user_documents = User.objects(wireguard_conf__exists=True)
+
+        for user in user_documents:
+            result.append(user['wireguard_conf']['id'])
+
+        return result
+
     def filter_used_wg_id(self, pool):
         user_documents = User.objects(wireguard_conf__exists=True)
 

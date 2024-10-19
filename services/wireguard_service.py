@@ -80,6 +80,14 @@ class WireguardService:
         finally:
             ipr.close()
 
+    def set_up(self, profile_id):
+        try:
+            wg_interface_name = f"wg{profile_id}"
+            self.logger.info(self.__run_subprocess(f"wg-quick up {wg_interface_name}"))
+            self.__configure_vrf(profile_id, wg_interface_name)
+        except Exception as e:# pylint: disable=broad-except
+            self.logger.warning(e)
+
     def generate_config(self, profile_id, if_up=True):
         # Keypairs generating
         server_keypair = self.__generate_wireguard_keypairs()
