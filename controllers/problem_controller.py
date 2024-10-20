@@ -88,9 +88,9 @@ def update_problem(problem_id):
                                                    subtask['task_name'],
                                                    subtask['point'],
                                                    subtask['script'],
-                                                   subtask['depend_on'])
+                                                   subtask['depends_on'])
         existing_task_name.add(subtask['task_name'])
-        for depend_on in subtask['depend_on']:
+        for depend_on in subtask['depends_on']:
             dependencies_list.append([depend_on, subtask['task_name']])
 
     tsort_result = topological_sort(existing_task_name, dependencies_list)

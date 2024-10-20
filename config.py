@@ -45,5 +45,11 @@ class DevelopmentConfig(Config):
     DEBUG = True
     ALLOW_CORS = True
 
+class ProductionConfig(Config):
+    LOG_PATH = "/var/log/system-judge.log"
+    LOGGING_LEVEL = "warning"
+    DEBUG = False
+    ALLOW_CORS = False
+
 def get_runtime_config():
     return os.getenv("RUNTIME_CONFIG", "Development")

@@ -12,7 +12,9 @@ from repositories import ProblemRepository, UserRepository, SubmissionRepository
 from controllers import problem_bp, user_bp, auth_bp, grade_bp
 from .judge_system import *
 
-LOGGING_LEVEL = {'debug': logging.DEBUG, 'info': logging.INFO}
+LOGGING_LEVEL = {'debug': logging.DEBUG,
+                 'info': logging.INFO,
+                 'warning': logging.WARNING}
 
 def initialize_app(config_name):
 

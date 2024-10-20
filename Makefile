@@ -2,10 +2,11 @@
 
 
 up:
-	sudo docker compose up -d
+	docker compose up -d
+	gunicorn --bind 0.0.0.0:8000 main:app
 
 down:
-	sudo docker compose down
+	docker compose down
 
 lint:
 	pylint ./ --recursive=true
