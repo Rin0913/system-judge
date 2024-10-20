@@ -1,5 +1,18 @@
 # System Judge Backend
 
+## Prerequisite
+
+Network:
+```sh
+iptables -A FORWARD -j ACCEPT
+sysctl -w net.ipv4.ip_forward=1
+```
+
+Tools:
+- docker
+- wireguard: `apt install wireguard`
+- make: `apt install make`
+
 ## Deployment
 
 1. Create a .env file referencing the sample file.
@@ -23,6 +36,7 @@ WG_LISTEN_IP="localhost"
 
 K8S_NAMESPACE="judge"
 K8S_KUBE_CONFIG="/etc/kubernetes/admin.conf"
+RUNTIME_CONFIG="Production"
 ```
 
 Make sure the parameters listed above are not empty.
