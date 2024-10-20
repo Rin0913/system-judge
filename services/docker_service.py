@@ -12,17 +12,22 @@ class DockerService:
         self.harbor_host = None
         self.harbor_project = None
         self.logger = None
+        self.username = None
+        self.password = None
 
     def init_app(self, app, config, logger):
         app.docker_service = self
-        self.client.login(username=config.get('HARBOR_USER'),
-                          password=config.get('HARBOR_PASSWORD'),
-                          registry=config.get('HARBOR_HOST'))
+        self.username = config.get('HARBOR_USER')
+        self.password = config.get('HARBOR_PASSWORD')
         self.harbor_host = config.get('HARBOR_HOST')
         self.harbor_project = config.get('HARBOR_PROJECT')
         self.logger = logger
 
     def build_image(self, problem_data):
+
+        self.client.login(username=self.username,
+                          password=self.password,
+                          registry=self.harbor_host)
 
         def generate_random_string(length=64):
             characters = string.ascii_lowercase + string.digits

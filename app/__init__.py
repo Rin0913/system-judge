@@ -1,4 +1,5 @@
 import logging
+import signal
 import sys
 
 import redis
@@ -24,6 +25,7 @@ def initialize_app(config_name):
     app.runtime_environment = config_name
     if app.config.get('ALLOW_CORS'):
         CORS(app)
+    signal.signal(signal.SIGINT, lambda _, __: sys.exit(0))
 
     # Logger Initialization
     judge_logger = logging.getLogger(__name__)
