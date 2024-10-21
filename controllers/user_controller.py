@@ -54,8 +54,9 @@ def list_my_submissions():
 @user_bp.route('/submission/<int:submission_id>', methods=['GET'])
 @access_control.require_login
 def get_submission(submission_id):
+    page = request.args.get('page', 0)
     user_id = current_app.user_repository.query(g.user['uid'])['_id']
-    result = current_app.submission_repository.query(submission_id)
+    result = current_app.submission_repository.query(submission_id, page)
     if result is None:
         abort(404)
     if result['user_id'] == user_id or g.user['role'] == 'admin':
