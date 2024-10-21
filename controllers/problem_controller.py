@@ -75,9 +75,14 @@ def update_problem(problem_id):
 
         return reversed(stack)
 
+    def validate(cond):
+        if not cond:
+            abort(400)
+
     # Validating the input
-    if not isinstance(request.json.get('allow_submission'), bool):
-        abort(400)
+    validate(isinstance(request.json.get('allow_submission'), bool))
+    validate(isinstance(request.json.get('max_cooldown_time'), int))
+    validate(isinstance(request.json.get('min_cooldown_time'), int))
 
     existing_task_name = set()
     dependencies_list = []
@@ -109,11 +114,14 @@ def update_problem(problem_id):
 
     # Modifying the problem data
     current_app.problem_repository.clear_content(problem_id)
-    current_app.problem_repository.update(problem_id,
+    current_app.problem_repository.update_info(problem_id,
                                           request.json.get('problem_name'),
                                           f_time(request.json.get('start_time')),
                                           f_time(request.json.get('deadline')),
                                           request.json.get('allow_submission'))
+    current_app.problem_repository.update_cooldown_time(problem_id,
+                                                        request.json.get('min_cooldown_time'),
+                                                        request.json.get('max_cooldown_time'))
     current_app.problem_repository.update_description(problem_id, request.json.get('description'))
     for subtask in request.json.get('subtasks'):
         current_app.problem_repository.add_subtask(problem_id,
@@ -145,6 +153,10 @@ def query_problem(problem_id):
         del problem_data['image_name']
     if 'order' in problem_data:
         del problem_data['order']
+    if g.user:
+        user_id = current_app.user_repository.query(g.user['uid'])['_id']
+        cooldown_key = f"cooldown_p{problem_id}_u{user_id}"
+        problem_data['cooldown'] = current_app.redis.ttl(cooldown_key)
     return jsonify(problem_data)
 
 @problem_bp.route('/<string:problem_id>', methods=['DELETE'])

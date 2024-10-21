@@ -42,6 +42,14 @@ class SubmissionRepository:
             return True
         return False
 
+    def clear_result(self, submission_id):
+        submission = Submission.objects(id=submission_id, status__ne='completed').first()
+        if submission:
+            submission.subtask_results = []
+            submission.save()
+            return True
+        return False
+
     def score(self, submission_id, point):
         submission = Submission.objects(id=submission_id).first()
         if submission:

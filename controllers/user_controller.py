@@ -73,11 +73,27 @@ def set_credential():
 @access_control.require_login
 def user_submit(problem_id):
     problem_data = current_app.problem_repository.query(problem_id)
-    if g.user['role'] == 'admin' or problem_data["allow_submission"]:
-        user_id = current_app.user_repository.query(g.user['uid'])['_id']
+    user_id = current_app.user_repository.query(g.user['uid'])['_id']
+    cooldown_key = f"cooldown_p{problem_id}_u{user_id}"
+    if problem_data["allow_submission"]:
+        if current_app.redis.get(cooldown_key):
+            return {'successfully': False}, 429
+
+        cooldown = (
+            problem_data['max_cooldown_time'] -
+            (
+                problem_data['max_cooldown_time'] -
+                problem_data['min_cooldown_time']
+            ) * current_app.judge_system.get_load()
+        )
         current_app.submission_repository.create(user_id, problem_id)
-        return {'sucessfully': True}
-    abort(403)
+        current_app.redis.set(cooldown_key, 1, ex=int(cooldown * 60))
+    elif g.user['role'] == 'admin':
+        current_app.submission_repository.create(user_id, problem_id)
+        current_app.redis.set(cooldown_key, 1, ex=int(cooldown * 60))
+    else:
+        abort(403)
+    return {'sucessfully': True}
 
 @user_bp.route('/get_user_token', methods=['POST'])
 @access_control.require_development_environment

@@ -46,7 +46,7 @@ class ProblemRepository:
             return True
         return False
 
-    def update(self, problem_id, problem_name, start_time, deadline, allow_submission):
+    def update_info(self, problem_id, problem_name, start_time, deadline, allow_submission):
         current_time = datetime.now()
         allow_submissions = False
 
@@ -60,6 +60,16 @@ class ProblemRepository:
             problem.start_time = start_time
             problem.deadline = deadline
             problem.allow_submission = allow_submission
+            problem.save()
+            return True
+        return False
+
+    def update_cooldown_time(self, problem_id, min_c, max_c):
+
+        problem = self.__query(problem_id)
+        if problem:
+            problem.min_cooldown_time = min_c
+            problem.max_cooldown_time = max_c
             problem.save()
             return True
         return False
