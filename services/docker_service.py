@@ -3,8 +3,6 @@ import threading
 import tempfile
 import os
 import shutil
-import random
-import string
 import docker
 
 class DockerService:
@@ -34,16 +32,11 @@ class DockerService:
 
         shutil.rmtree(temp_dir)
 
-    def build_image(self, problem_data):
+    def build_image(self, image_name, problem_data):
 
         self.client.login(username=self.username,
                           password=self.password,
                           registry=self.harbor_host)
-
-        def generate_random_string(length=64):
-            characters = string.ascii_lowercase + string.digits
-            random_string = ''.join(random.choices(characters, k=length))
-            return random_string
 
         temp_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(temp_dir, "scripts/"))
@@ -63,7 +56,6 @@ class DockerService:
         shutil.copyfile('./templates/default.sh.temp', os.path.join(temp_dir, 'default.sh'))
         shutil.copyfile('./templates/ansible.cfg.temp', os.path.join(temp_dir, 'ansible.cfg'))
 
-        image_name = generate_random_string(16)
         image_tag = f"{self.harbor_host}/{self.harbor_project}/{image_name}:latest"
 
         # Build the image

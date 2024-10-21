@@ -126,7 +126,8 @@ def update_problem(problem_id):
                                                     playbook['playbook_name'],
                                                     playbook['script'])
     problem_data = current_app.problem_repository.query(problem_id)
-    image_name = current_app.docker_service.build_image(problem_data)
+    image_name = current_app.docker_service.build_image(f"problem_{problem_id}_judge_image",
+                                                        problem_data)
     current_app.problem_repository.set_image_name(problem_id, image_name)
     current_app.problem_repository.set_order(problem_id, tsort_result)
     return {'successful': True}
