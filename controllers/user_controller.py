@@ -40,10 +40,11 @@ def whoami():
 @user_bp.route('/submissions', methods=['GET'])
 @access_control.require_login
 def list_my_submissions():
+    page = request.args.get('page', 0)
     user_id = current_app.user_repository.query(g.user['uid'])['_id']
     result = []
     for problem in current_app.problem_repository.list():
-        result += current_app.submission_repository.list(user_id, problem['_id'])
+        result += current_app.submission_repository.list(user_id, problem['_id'], page)
 
     for r in result:
         del r['subtask_results']
@@ -54,9 +55,8 @@ def list_my_submissions():
 @user_bp.route('/submission/<int:submission_id>', methods=['GET'])
 @access_control.require_login
 def get_submission(submission_id):
-    page = request.args.get('page', 0)
     user_id = current_app.user_repository.query(g.user['uid'])['_id']
-    result = current_app.submission_repository.query(submission_id, page)
+    result = current_app.submission_repository.query(submission_id)
     if result is None:
         abort(404)
     if result['user_id'] == user_id or g.user['role'] == 'admin':
@@ -76,7 +76,9 @@ def user_submit(problem_id):
     problem_data = current_app.problem_repository.query(problem_id)
     user_id = current_app.user_repository.query(g.user['uid'])['_id']
     cooldown_key = f"cooldown_p{problem_id}_u{user_id}"
-    if problem_data["allow_submission"]:
+    if g.user['role'] == 'admin':
+        current_app.submission_repository.create(user_id, problem_id)
+    elif problem_data["allow_submission"]:
         if current_app.redis.get(cooldown_key):
             return {'successfully': False}, 429
 
@@ -88,10 +90,7 @@ def user_submit(problem_id):
             ) * current_app.judge_system.get_load()
         )
         current_app.submission_repository.create(user_id, problem_id)
-        current_app.redis.set(cooldown_key, 1, ex=int(cooldown * 60))
-    elif g.user['role'] == 'admin':
-        current_app.submission_repository.create(user_id, problem_id)
-        current_app.redis.set(cooldown_key, 1, ex=int(cooldown * 60))
+        current_app.redis.set(cooldown_key, 1, ex=max(1, int(cooldown * 60)))
     else:
         abort(403)
     return {'sucessfully': True}
