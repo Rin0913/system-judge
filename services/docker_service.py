@@ -1,3 +1,5 @@
+import threading
+
 import tempfile
 import os
 import shutil
@@ -22,6 +24,15 @@ class DockerService:
         self.harbor_host = config.get('HARBOR_HOST')
         self.harbor_project = config.get('HARBOR_PROJECT')
         self.logger = logger
+
+    def __build_and_push(self, image_tag, temp_dir):
+        _, logs = self.client.images.build(path=temp_dir, tag=image_tag)
+
+        for log in logs:
+            self.logger.debug(log)
+        self.logger.info(self.client.images.push(image_tag))
+
+        shutil.rmtree(temp_dir)
 
     def build_image(self, problem_data):
 
@@ -52,14 +63,12 @@ class DockerService:
         shutil.copyfile('./templates/default.sh.temp', os.path.join(temp_dir, 'default.sh'))
         shutil.copyfile('./templates/ansible.cfg.temp', os.path.join(temp_dir, 'ansible.cfg'))
 
-        # Build the image
         image_name = generate_random_string(16)
         image_tag = f"{self.harbor_host}/{self.harbor_project}/{image_name}:latest"
-        _, logs = self.client.images.build(path=temp_dir, tag=image_tag)
 
-        for log in logs:
-            self.logger.debug(log)
-        self.logger.info(self.client.images.push(image_tag))
+        # Build the image
+        thread = threading.Thread(target=self.__build_and_push, args=(image_tag, temp_dir))
+        thread.daemon = True
+        thread.start()
 
-        shutil.rmtree(temp_dir)
         return image_tag
