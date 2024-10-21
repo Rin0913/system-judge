@@ -1,9 +1,9 @@
 import random
 import string
 import traceback
+import threading
 from queue import Queue
 from time import sleep
-from concurrent.futures import ThreadPoolExecutor
 from services import KubernetesService
 
 class JudgeSystem:
@@ -22,10 +22,14 @@ class JudgeSystem:
         self.logger = logger
         self.thread_num = config.get('WORKER_NUM')
 
-        executor = ThreadPoolExecutor()
-        executor.submit(self.fetch_job)
+        job_fetcher = threading.Thread(target=self.fetch_job)
+        job_fetcher.daemon = True
+        job_fetcher.start()
+
         for _ in range(self.thread_num):
-            executor.submit(self.judge_worker)
+            worker = threading.Thread(target=self.judge_worker)
+            worker.daemon = True
+            worker.start()
 
     def get_load(self):
         l = self.task_queue.qsize() / self.thread_num

@@ -90,9 +90,9 @@ def initialize_app(config_name):
         wireguard_service.set_up(wg_profile_id)
 
     # Judge system Initialization
-    app.judge_systm = JudgeSystem(app.config,
-                                  user_repository,
-                                  submission_repository,
-                                  problem_repository,
-                                  judge_logger)
+    app.judge_system = JudgeSystem(app.config,
+                                   user_repository,
+                                   submission_repository,
+                                   problem_repository,
+                                   judge_logger)
     return app
