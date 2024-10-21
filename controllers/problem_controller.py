@@ -37,7 +37,10 @@ def create_problem():
 def update_problem(problem_id):
 
     def f_time(time):
-        return datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+        try:
+            return datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            abort(400)
 
     def dfs(graph, visited, stack, node, current_path):
         if visited[node] == -1:
@@ -72,6 +75,39 @@ def update_problem(problem_id):
 
         return reversed(stack)
 
+    # Validating the input
+    if not isinstance(request.json.get('allow_submission'), bool):
+        abort(400)
+
+    existing_task_name = set()
+    dependencies_list = []
+
+    for subtask in request.json.get('subtasks'):
+        if subtask['task_name'] and subtask['task_name'] in existing_task_name:
+            return {'successful': False, 'message': 'Conflicting subtasks.'}, 400
+
+        if not isinstance(subtask['point'], int):
+            return {'successful': False, 'message': 'Invalid `point` field.'}, 400
+
+        existing_task_name.add(subtask['task_name'])
+        for depend_on in subtask['depends_on']:
+            dependencies_list.append([depend_on, subtask['task_name']])
+
+    tsort_result = topological_sort(existing_task_name, dependencies_list)
+    if tsort_result is None:
+        return {'successful': False, 'message': 'Circular dependency detected.'}, 400
+
+    for dependency in dependencies_list:
+        if dependency[0] not in existing_task_name:
+            return {'successful': False, 'message': 'Not existing dependency.'}, 400
+
+    existing_playbook_name = set()
+    for playbook in request.json.get('playbooks'):
+        if playbook['playbook_name'] and playbook['playbook_name'] in existing_playbook_name:
+            return {'successful': False, 'message': 'Conflicting playbooks.'}, 400
+        existing_playbook_name.add(playbook['playbook_name'])
+
+    # Modifying the problem data
     current_app.problem_repository.clear_content(problem_id)
     current_app.problem_repository.update(problem_id,
                                           request.json.get('problem_name'),
@@ -79,42 +115,21 @@ def update_problem(problem_id):
                                           f_time(request.json.get('deadline')),
                                           request.json.get('allow_submission'))
     current_app.problem_repository.update_description(problem_id, request.json.get('description'))
-    existing_task_name = set()
-    dependencies_list = []
     for subtask in request.json.get('subtasks'):
-        if subtask['task_name'] in existing_task_name:
-            return jsonify({'successful': False, 'message': 'Conflicting subtasks.'}), 400
         current_app.problem_repository.add_subtask(problem_id,
                                                    subtask['task_name'],
                                                    subtask['point'],
                                                    subtask['script'],
                                                    subtask['depends_on'])
-        existing_task_name.add(subtask['task_name'])
-        for depend_on in subtask['depends_on']:
-            dependencies_list.append([depend_on, subtask['task_name']])
-
-    tsort_result = topological_sort(existing_task_name, dependencies_list)
-    if tsort_result is None:
-        return jsonify({'successful': False, 'message': 'Circular dependency detected.'}), 400
-
-    for dependency in dependencies_list:
-        if dependency[0] not in existing_task_name:
-            return jsonify({'successful': False, 'message': 'Not existing dependency.'}), 400
-
-    existing_playbook_name = set()
     for playbook in request.json.get('playbooks'):
-        if playbook['playbook_name'] in existing_playbook_name:
-            return jsonify({'successful': False, 'message': 'Conflicting playbooks.'}), 400
         current_app.problem_repository.add_playbook(problem_id,
                                                     playbook['playbook_name'],
                                                     playbook['script'])
-        existing_playbook_name.add(playbook['playbook_name'])
-
     problem_data = current_app.problem_repository.query(problem_id)
     image_name = current_app.docker_service.build_image(problem_data)
     current_app.problem_repository.set_image_name(problem_id, image_name)
     current_app.problem_repository.set_order(problem_id, tsort_result)
-    return jsonify({'successful': True})
+    return {'successful': True}
 
 @problem_bp.route('/<string:problem_id>', methods=['GET'])
 @access_control.authenticate
