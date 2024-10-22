@@ -42,9 +42,7 @@ def whoami():
 def list_my_submissions():
     page = request.args.get('page', 0)
     user_id = current_app.user_repository.query(g.user['uid'])['_id']
-    result = []
-    for problem in current_app.problem_repository.list():
-        result += current_app.submission_repository.list(user_id, problem['_id'], page)
+    result = current_app.submission_repository.list(user_id, page)
 
     for r in result:
         del r['subtask_results']

@@ -21,8 +21,9 @@ def download_problem(problem_id):
         if s['user_id'] not in user_submissions:
             user_submissions[s['user_id']] = []
         user_submissions[s['user_id']].append(s)
+    user_mapping = current_app.user_repository.query_by_ids(list(user_submissions.keys()))
     for user, submissions_by_user in user_submissions.items():
-        username = current_app.user_repository.query_by_id(user)['name']
+        username = user_mapping[user]['name']
         user_submissions[user].sort(key=lambda s: (-s['point'], s['creation_time']))
         before_deadline = []
         for s in submissions_by_user:

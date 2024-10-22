@@ -25,10 +25,9 @@ class SubmissionRepository:
             return None
         return mongo_utils.mongo_to_dict(submission)
 
-    def list(self, user_id, problem_id, page=0):
+    def list(self, user_id, page=0):
         submissions = Submission.objects(
             user_id=user_id,
-            problem_id=problem_id
         ).order_by('-id')[(page)*200:(page+1)*200]
         return [mongo_utils.mongo_to_dict(s) for s in submissions]
 
