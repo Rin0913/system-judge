@@ -13,7 +13,7 @@ DNS = 8.8.8.8
 [Peer]
 PublicKey = {server_public_keypair}
 Endpoint = {server_ip}:{server_listen_port}
-AllowedIPs = 10.101.101.0/24
+AllowedIPs = 10.101.101.0/24{allow_ips}
 PersistentKeepalive = 3
 """.strip()
 
@@ -127,11 +127,13 @@ class WireguardService:
                                         peer_interface_ip="10.101.101.1",
                                         server_public_keypair=server_keypair[1],
                                         server_ip=self.server_ip,
-                                        server_listen_port=server_listen_port)
+                                        server_listen_port=server_listen_port,
+                                        allow_ips="")
 
         judge_conf = PEER_CONFIG.format(peer_private_keypair=judge_keypair[0],
                                         peer_interface_ip="10.101.101.2",
                                         server_public_keypair=server_keypair[1],
                                         server_ip=self.server_ip,
-                                        server_listen_port=server_listen_port)
+                                        server_listen_port=server_listen_port,
+                                        allow_ips=", 10.89.64.0/24")
         return (user_conf, judge_conf)
