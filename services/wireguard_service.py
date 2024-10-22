@@ -58,6 +58,7 @@ class WireguardService:
         ipr.link("set", index=vrf_index, state="up")
         wg_index = ipr.link_lookup(ifname=wg_interface_name)[0]
         ipr.link("set", index=wg_index, master=vrf_index)
+        ipr.route("add", dst="10.89.64.0/24", oif=wg_index, table=1000 + profile_id)
         ipr.close()
 
         return vrf_name
