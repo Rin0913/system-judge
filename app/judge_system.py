@@ -57,12 +57,20 @@ class JudgeSystem:
             problem_data = self.problem_repository.query(problem_id)
             user_data = self.user_repository.query_by_id(user_id)
             task_point = {task['task_name']: task['point'] for task in problem_data['subtasks']}
+            task_dependencies = {
+                    task['task_name']: task['depends_on'] for task in problem_data['subtasks']
+            }
             score = 0
             self.submission_repository.clear_result(submission_id)
+            task_result = {}
             for task in problem_data['order']:
                 try:
                     code, log = (1, "Unable to establish wireguard tunnel.")
-                    if 'wireguard_conf' in user_data:
+                    for dependency in task_dependencies[task]:
+                        if not task_result[dependency]:
+                            code, log = (2, f"Dependency task {dependency} failed.")
+                            break
+                    if code == 1 and 'wireguard_conf' in user_data:
                         code, log = self.kubernetes_service.execute_pod(
                             problem_data['image_name'],
                             task,
@@ -79,5 +87,6 @@ class JudgeSystem:
                     log
                 )
                 score += task_point[task] * (code == 0)
+                task_result[task] = code == 0
             self.submission_repository.score(submission_id, score)
             self.logger.debug(f"Finished submission {submission_id} with score {score}.")
