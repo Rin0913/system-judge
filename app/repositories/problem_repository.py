@@ -1,5 +1,5 @@
 from datetime import datetime
-from ..odms import Problem, Subtask, Playbook
+from ..models import Problem, Subtask, Playbook
 from .utils import mongo_utils
 
 
