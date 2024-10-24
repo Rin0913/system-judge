@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import mongomock
 import mongoengine as me
-from repositories import ProblemRepository
+from app.repositories import ProblemRepository
 
 me.connect('testdb', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient)
 problem_repository = ProblemRepository()

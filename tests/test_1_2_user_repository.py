@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import mongomock
 import mongoengine as me
-from repositories import UserRepository
+from app.repositories import UserRepository
 
 me.connect('testdb', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient)
 user_repository = UserRepository()

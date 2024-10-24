@@ -1,7 +1,7 @@
 import logging
 from types import SimpleNamespace
 
-from services import WireguardService
+from app.services import WireguardService
 
 wireguard_service = WireguardService()
 wireguard_service.init_app(SimpleNamespace(), "localhost", logging)

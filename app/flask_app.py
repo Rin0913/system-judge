@@ -8,10 +8,9 @@ from flask_cors import CORS
 import mongoengine as me
 from redlock import Redlock
 
-from services import AuthService, DockerService, LdapService, WireguardService
-from repositories import ProblemRepository, UserRepository, SubmissionRepository
-from controllers import problem_bp, user_bp, auth_bp, grade_bp
-
+from .services import AuthService, DockerService, LdapService, WireguardService
+from .repositories import ProblemRepository, UserRepository, SubmissionRepository
+from .controllers import problem_bp, user_bp, auth_bp, grade_bp
 from .judge_system import JudgeSystem
 
 LOGGING_LEVEL = {'debug': logging.DEBUG,

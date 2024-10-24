@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import mongomock
 import mongoengine as me
-from repositories import SubmissionRepository
+from app.repositories import SubmissionRepository
 
 me.connect('testdb', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient)
 submission_repository = SubmissionRepository()

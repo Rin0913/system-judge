@@ -1,4 +1,4 @@
-from models import User, WGConf
+from ..odms import User, WGConf
 
 
 class UserRepository:

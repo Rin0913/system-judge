@@ -1,4 +1,4 @@
-from models import Submission, SubtaskResult
+from ..odms import Submission, SubtaskResult
 from .utils import mongo_utils
 
 

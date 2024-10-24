@@ -4,7 +4,7 @@ import traceback
 import threading
 from queue import Queue
 from time import sleep
-from services import KubernetesService
+from .services import KubernetesService
 
 class JudgeSystem:
 
