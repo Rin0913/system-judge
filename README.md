@@ -50,3 +50,6 @@ Notices:
 Warnings:
 - Because of the usage of Wireguard in container, we have to grant container `CAP_NET_ADMIN` capability. Make sure your network is well-designed or even isolated. Using some CNI plugin or firewall policies would be better.
 
+## Also See
+
+- [System Judge Proposal](https://sandb0x.tw/b/system-judge.md)
