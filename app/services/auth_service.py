@@ -40,10 +40,10 @@ class AuthService:
         try:
             payload = jwt.decode(payload, self.secret, algorithms=["HS256"])
         except jwt.ExpiredSignatureError as e:
-            self.logger.error(f"Token has expired: {e}")
+            self.logger.debug(f"Token has expired: {e}")
             return None
         except jwt.InvalidTokenError as e:
-            self.logger.error(f"Invalid token: {e}")
+            self.logger.warning(f"Invalid token: {e}")
             return None
 
         return payload
