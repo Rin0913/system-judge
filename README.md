@@ -5,6 +5,7 @@
 Network:
 ```sh
 iptables -A FORWARD -j ACCEPT
+iptables -t nat -A POSTROUTING -j MASQUERADE
 sysctl -w net.ipv4.ip_forward=1
 ```
 
