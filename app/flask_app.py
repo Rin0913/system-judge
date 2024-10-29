@@ -61,7 +61,10 @@ def initialize_app(config_name):
     docker_service = DockerService()
     docker_service.init_app(app, app.config, judge_logger)
     wireguard_service = WireguardService()
-    wireguard_service.init_app(app, app.config.get('WG_LISTEN_IP'), judge_logger)
+    wireguard_service.init_app(app,
+                               app.config.get('WG_LISTEN_IP'),
+                               app.config.get('ALLOWED_IP'),
+                               judge_logger)
 
     AuthService().init_app(app,
                            app.config.get('JWT_SECRET'),

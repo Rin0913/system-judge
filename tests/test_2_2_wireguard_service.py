@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from app.services import WireguardService
 
 wireguard_service = WireguardService()
-wireguard_service.init_app(SimpleNamespace(), "localhost", logging)
+wireguard_service.init_app(SimpleNamespace(), "localhost", None, logging)
 
 def test_generate_conf():
     # Listen on a normal port

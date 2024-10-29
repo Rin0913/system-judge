@@ -38,6 +38,7 @@ class Config:
     DEBUG = False
     ALLOW_CORS = False
     WORKER_NUM = int(os.getenv("WORKER_NUM", "2"))
+    ALLOWED_IP = os.getenv("ALLOWED_IP")
 
 class DevelopmentConfig(Config):
     LOG_PATH = "./judge.log"
