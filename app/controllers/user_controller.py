@@ -9,7 +9,7 @@ def request_vpn_conf():
     lock = current_app.redis_dlm.lock("vpn_request", 2000)
     if lock:
         pool = set()
-        for i in range(40000):
+        for i in range(30000):
             pool.add(i)
         user_data = current_app.user_repository.query(g.user['uid'])
         wg_id = None
