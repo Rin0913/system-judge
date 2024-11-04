@@ -126,8 +126,8 @@ class ProblemService:
         existing_task_name = {task['task_name'] for task in problem_data['subtasks']}
         dependencies_list = [
             (dependency, task['task_name'])
-                for dependency in task['depends_on']
                 for task in problem_data['subtasks']
+                for dependency in task['depends_on']
         ]
         tsort_result = self.__topological_sort(existing_task_name, dependencies_list)
         self.problem_repository.set_order(problem_id, tsort_result)
