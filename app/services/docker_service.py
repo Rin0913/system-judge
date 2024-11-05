@@ -30,6 +30,7 @@ class DockerService:
             self.logger.debug(log)
         self.logger.info(self.client.images.push(image_tag))
 
+        self.client.images.remove(image=image_tag)
         shutil.rmtree(temp_dir)
 
     def build_image(self, image_name, problem_data):
