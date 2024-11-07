@@ -48,7 +48,7 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     LOG_PATH = "/var/log/system-judge.log"
-    LOGGING_LEVEL = "warning"
+    LOGGING_LEVEL = "info"
     DEBUG = False
     ALLOW_CORS = False
 

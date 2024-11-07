@@ -89,4 +89,4 @@ class JudgeSystem:
                 score += task_point[task] * (code == 0)
                 task_result[task] = code == 0
             self.submission_repository.score(submission_id, score)
-            self.logger.debug(f"Finished submission {submission_id} with score {score}.")
+            self.logger.info(f"Finished submission {submission_id} with score {score}.")

@@ -18,7 +18,6 @@ def list_problems():
         del p['description']
     for i in range(len(problem_data) - 1, -1, -1):
         if (not problem_data[i]['allow_submission']) and (not is_admin):
-            print(is_admin)
             del problem_data[i]
     return jsonify(problem_data)
 
