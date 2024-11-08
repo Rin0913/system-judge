@@ -8,7 +8,12 @@ from flask_cors import CORS
 import mongoengine as me
 from redlock import Redlock
 
-from .services import AuthService, DockerService, LdapService, WireguardService, ProblemService
+from .services import (AuthService,
+                       DockerService,
+                       LdapService,
+                       WireguardService,
+                       ProblemService,
+                       GradeService)
 from .repositories import ProblemRepository, UserRepository, SubmissionRepository
 from .controllers import problem_bp, user_bp, auth_bp, grade_bp
 from .judge_system import JudgeSystem
@@ -72,6 +77,11 @@ def initialize_app(config_name):
                            judge_logger)
     LdapService().init_app(app, app.config)
     ProblemService().init_app(app, problem_repository, docker_service)
+    GradeService().init_app(app,
+                            user_repository,
+                            problem_repository,
+                            submission_repository,
+                            judge_logger)
 
     # Registering Blueprints
     app.register_blueprint(problem_bp, url_prefix='/problems')
