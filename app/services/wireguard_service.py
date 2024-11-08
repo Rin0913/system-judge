@@ -8,7 +8,6 @@ PEER_CONFIG = """
 [Interface]
 PrivateKey = {peer_private_keypair}
 Address = {peer_interface_ip}/32
-DNS = 8.8.8.8
 
 [Peer]
 PublicKey = {server_public_keypair}
