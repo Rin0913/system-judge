@@ -117,9 +117,10 @@ class ProblemRepository:
         problem.save()
         return True
 
-    def set_image_name(self, problem_id, image_name):
+    def set_image(self, problem_id, dockerfile, image_name):
         problem = self.__query(problem_id)
         if problem:
+            problem.update(dockerfile=dockerfile)
             problem.update(image_name=image_name)
             return True
         return False

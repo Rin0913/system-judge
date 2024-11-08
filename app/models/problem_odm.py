@@ -24,6 +24,7 @@ class Problem(me.Document):
 
     id = me.SequenceField(primary_key=True)
 
+    dockerfile = me.StringField(default="")
     allow_submission = me.BooleanField(default=False)
     problem_name = me.StringField(max_length=255, default="NewProblem")
     description = me.StringField(default="")

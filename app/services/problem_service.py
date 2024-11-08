@@ -117,11 +117,16 @@ class ProblemService:
                                                  playbook['playbook_name'],
                                                  playbook['script'])
 
+        dockerfile = problem_data.get('dockerfile')
+
         # Build and upload the image
         problem_data = self.problem_repository.query(problem_id)
         image_name = self.docker_service.build_image(f"problem_{problem_id}_judge_image",
-                                                            problem_data)
-        self.problem_repository.set_image_name(problem_id, image_name)
+                                                     dockerfile,
+                                                     problem_data)
+        self.problem_repository.set_image(problem_id,
+                                          dockerfile,
+                                          image_name)
 
         existing_task_name = {task['task_name'] for task in problem_data['subtasks']}
         dependencies_list = [
@@ -129,5 +134,6 @@ class ProblemService:
                 for task in problem_data['subtasks']
                 for dependency in task['depends_on']
         ]
+
         tsort_result = self.__topological_sort(existing_task_name, dependencies_list)
         self.problem_repository.set_order(problem_id, tsort_result)

@@ -15,6 +15,8 @@ def list_problems():
             del p['image_name']
         if 'order' in p:
             del p['order']
+        if 'dockerfile' in p:
+            del p['dockerfile']
         del p['description']
     for i in range(len(problem_data) - 1, -1, -1):
         if (not problem_data[i]['allow_submission']) and (not is_admin):
@@ -50,6 +52,7 @@ def query_problem(problem_id):
     if (not hasattr(g, 'user')) or g.user is None or g.user['role'] != 'admin':
         del problem_data['subtasks']
         del problem_data['playbooks']
+        del problem_data['dockerfile']
     if 'image_name' in problem_data:
         del problem_data['image_name']
     if 'order' in problem_data:

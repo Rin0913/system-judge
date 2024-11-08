@@ -27,13 +27,13 @@ class DockerService:
         _, logs = self.client.images.build(path=temp_dir, tag=image_tag)
 
         for log in logs:
-            self.logger.debug(log)
+            self.logger.info(log)
         self.logger.info(self.client.images.push(image_tag))
 
         self.client.images.remove(image=image_tag)
         shutil.rmtree(temp_dir)
 
-    def build_image(self, image_name, problem_data):
+    def build_image(self, image_name, dockerfile, problem_data):
 
         self.client.login(username=self.username,
                           password=self.password,
@@ -41,6 +41,17 @@ class DockerService:
 
         temp_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(temp_dir, "scripts/"))
+
+        # Copy the templates
+        shutil.copyfile('./templates/dockerfile.temp', os.path.join(temp_dir, 'Dockerfile'))
+        shutil.copyfile('./templates/default.sh.temp', os.path.join(temp_dir, 'default.sh'))
+        shutil.copyfile('./templates/ansible.cfg.temp', os.path.join(temp_dir, 'ansible.cfg'))
+
+        image_tag = f"{self.harbor_host}/{self.harbor_project}/{image_name}:latest"
+
+        # Append dockerfile content for multi-stage building
+        with open(os.path.join(temp_dir, 'Dockerfile'), 'a', encoding='utf-8') as f:
+            f.write(dockerfile)
 
         # Copy from MongoDB to temp_dir
         for task in problem_data['subtasks']:
@@ -51,13 +62,6 @@ class DockerService:
             file_path = os.path.join(temp_dir, f"scripts/{playbook['playbook_name']}")
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(playbook['script'])
-
-        # Copy the templates
-        shutil.copyfile('./templates/dockerfile.temp', os.path.join(temp_dir, 'Dockerfile'))
-        shutil.copyfile('./templates/default.sh.temp', os.path.join(temp_dir, 'default.sh'))
-        shutil.copyfile('./templates/ansible.cfg.temp', os.path.join(temp_dir, 'ansible.cfg'))
-
-        image_tag = f"{self.harbor_host}/{self.harbor_project}/{image_name}:latest"
 
         # Build the image
         thread = threading.Thread(target=self.__build_and_push, args=(image_tag, temp_dir))
