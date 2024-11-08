@@ -61,8 +61,8 @@ class ProblemService:
 
         # Check each subtask is unique
         for subtask in problem_data.get('subtasks'):
-            if subtask['task_name'] and subtask['task_name'] in existing_task_name:
-                raise ValueError("Duplicate subtask name.")
+            if not subtask['task_name'] or subtask['task_name'] in existing_task_name:
+                raise ValueError("Invalid or duplicate subtask name.")
 
             assert_type(subtask['point'], int)
 
@@ -83,8 +83,8 @@ class ProblemService:
         # Check each playbook is unique
         existing_playbook_name = set()
         for playbook in problem_data.get('playbooks'):
-            if playbook['playbook_name'] and playbook['playbook_name'] in existing_playbook_name:
-                raise ValueError("Duplicate playbook name.")
+            if not playbook['playbook_name'] or playbook['playbook_name'] in existing_playbook_name:
+                raise ValueError("Invalid or duplicate playbook name.")
             existing_playbook_name.add(playbook['playbook_name'])
 
     def submit(self, problem_id, problem_data):
