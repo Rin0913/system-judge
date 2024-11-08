@@ -16,12 +16,12 @@ Tools:
 
 ## Deployment
 
-1. Create a .env file referencing the sample file.
-2. Fill the parameters, and add the following line into the .env file.
+1. Create a .env file based on the sample file.
+2. Fill in the parameters, and add the following line into the .env file.
     ```sh
     RUNTIME_CONFIG="Production"
     ```
-3. Execute the following command:
+3. Execute the following command with root privilege:
     ```
     venv/bin/gunicorn --bind localhost:8000 main:app
     ```
